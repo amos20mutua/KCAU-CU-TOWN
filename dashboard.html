@@ -21,6 +21,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8f9fa;
+            font-size: 16px;
         }
 
         .dashboard-container {
@@ -34,6 +35,7 @@
             background: #2c3e50;
             color: white;
             padding: 20px;
+            transition: transform 0.3s ease;
         }
 
         .logo {
@@ -42,16 +44,22 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
+        .logo img {
+            max-width: 120px;
+            height: auto;
+        }
+
         /* Navigation Styles */
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 15px;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            margin: 5px 0;
+            border-radius: 8px;
+            margin: 8px 0;
             transition: background 0.3s;
+            font-size: 1rem;
         }
 
         .nav-item:hover {
@@ -63,9 +71,10 @@
         }
 
         .nav-item i {
-            margin-right: 10px;
-            width: 20px;
+            margin-right: 12px;
+            width: 24px;
             text-align: center;
+            font-size: 1.2rem;
         }
 
         /* Main Content Styles */
@@ -82,22 +91,45 @@
             margin-bottom: 30px;
             padding: 20px;
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        /* Header Actions */
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
         }
 
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
         .stat-card {
             background: white;
-            padding: 25px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
@@ -109,25 +141,21 @@
         }
 
         .stat-icon {
-            font-size: 2.5em;
+            font-size: 2rem;
             color: #007bff;
-            margin-right: 20px;
-            width: 60px;
+            margin-right: 15px;
+            width: 50px;
             text-align: center;
-        }
-
-        .stat-info {
-            flex-grow: 1;
         }
 
         .stat-info h3 {
             margin: 0;
             color: #6c757d;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .stat-info .number {
-            font-size: 1.8em;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #2c3e50;
             margin-top: 5px;
@@ -136,14 +164,14 @@
         /* Content Grid */
         .content-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr;
             gap: 20px;
         }
 
         .card {
             background: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
@@ -153,6 +181,7 @@
             align-items: center;
             margin-bottom: 20px;
             color: #2c3e50;
+            font-size: 1.2rem;
         }
 
         .card h2 i {
@@ -166,6 +195,7 @@
             border-bottom: 1px solid #eee;
             display: flex;
             align-items: center;
+            gap: 15px;
         }
 
         .activity-item:last-child {
@@ -180,47 +210,176 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 15px;
             color: #007bff;
+            flex-shrink: 0;
         }
 
-        /* Progress Bars */
-        .progress-container {
-            margin: 10px 0;
+        .activity-info {
+            flex: 1;
         }
 
-        .progress-bar {
-            height: 10px;
-            background: #e9ecef;
-            border-radius: 5px;
-            overflow: hidden;
+        .activity-info h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: #2c3e50;
         }
 
-        .progress {
-            height: 100%;
-            background: var(--primary-color);
-            transition: width 0.3s;
+        .activity-info p {
+            margin: 5px 0;
+            color: #6c757d;
+            font-size: 0.9rem;
         }
 
-        /* Buttons */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
+        .activity-info small {
+            color: #999;
+            font-size: 0.8rem;
         }
 
-        .btn-primary {
-            background: var(--primary-color);
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                z-index: 1000;
+                padding: 10px;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                background: #2c3e50;
+            }
+
+            .logo {
+                display: none;
+            }
+
+            .nav-item {
+                padding: 10px;
+                flex-direction: column;
+                text-align: center;
+                margin: 0;
+                font-size: 0.8rem;
+            }
+
+            .nav-item i {
+                margin: 0 0 5px 0;
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                margin-bottom: 80px;
+                padding: 15px;
+            }
+
+            .header {
+                padding: 15px;
+                text-align: center;
+                justify-content: center;
+            }
+
+            .header h1 {
+                font-size: 1.2rem;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-icon {
+                font-size: 1.5rem;
+                width: 40px;
+            }
+
+            .stat-info .number {
+                font-size: 1.2rem;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .activity-item {
+                padding: 12px;
+            }
+
+            .activity-icon {
+                width: 35px;
+                height: 35px;
+            }
+
+            /* Make buttons more touch-friendly */
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .header-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+        }
+
+        /* Add smooth scrolling for the entire page */
+        * {
+            scroll-behavior: smooth;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #333;
             color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
         }
 
-        .btn-primary:hover {
-            background: #0056b3;
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
         }
 
-        /* Modal and Form Styles */
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        @media (max-width: 480px) {
+            .toast {
+                left: 20px;
+                right: 20px;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -229,9 +388,9 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            padding: 10px;
-            overflow-y: auto; /* Enable scrolling on the backdrop */
+            z-index: 2000;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal-content {
@@ -239,47 +398,40 @@
             width: 90%;
             max-width: 500px;
             margin: 20px auto;
-            padding: 20px;
             border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             position: relative;
-            max-height: 90vh; /* Maximum height relative to viewport */
-            overflow-y: auto; /* Enable scrolling within modal */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
         }
 
         .modal-header {
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 1;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
+            padding: 20px;
             border-bottom: 1px solid #eee;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
         }
 
         .modal-header h2 {
-            font-size: 1.25rem;
-            color: var(--primary-color);
+            font-size: 1.2rem;
             margin: 0;
             display: flex;
             align-items: center;
             gap: 8px;
+            color: #2c3e50;
         }
 
         .close-btn {
             background: none;
             border: none;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             cursor: pointer;
             color: #666;
-            padding: 8px;
-            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 50%;
             transition: background-color 0.3s;
         }
 
@@ -288,6 +440,10 @@
         }
 
         /* Form Styles */
+        #addEventForm {
+            padding: 20px;
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
@@ -296,7 +452,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
-            color: var(--text-primary);
+            color: #2c3e50;
             font-size: 0.9rem;
         }
 
@@ -304,26 +460,27 @@
         .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 1.5px solid #e1e1e1;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             transition: border-color 0.3s;
+            background: #f8f9fa;
         }
 
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: var(--primary-color);
+            background: white;
         }
 
         .form-group textarea {
             height: 120px;
             resize: vertical;
             min-height: 80px;
-            max-height: 200px;
         }
 
-        /* Poster Upload Styles */
+        /* File Upload Styles */
         .poster-upload {
             position: relative;
             width: 100%;
@@ -332,9 +489,6 @@
         }
 
         .poster-preview {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             border: 2px dashed #ddd;
@@ -344,9 +498,10 @@
             align-items: center;
             justify-content: center;
             color: #666;
+            cursor: pointer;
+            transition: border-color 0.3s;
             background-size: cover;
             background-position: center;
-            transition: border-color 0.3s;
         }
 
         .poster-preview:hover {
@@ -354,69 +509,77 @@
         }
 
         .poster-preview i {
-            font-size: 24px;
+            font-size: 2rem;
             margin-bottom: 8px;
+            color: #666;
+        }
+
+        #eventPoster {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
 
         /* Form Actions */
         .form-actions {
-            position: sticky;
-            bottom: 0;
-            background: white;
-            padding-top: 15px;
-            margin-top: 20px;
+            padding: 20px;
             border-top: 1px solid #eee;
             display: flex;
-            justify-content: flex-end;
             gap: 10px;
+            justify-content: flex-end;
         }
 
-        .cancel-btn,
-        .submit-btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.95rem;
+        .form-actions button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 500;
+            cursor: pointer;
             transition: all 0.3s;
+            min-width: 100px;
         }
 
         .submit-btn {
-            background-color: var(--primary-color);
+            background: var(--primary-color);
             color: white;
             border: none;
         }
 
         .submit-btn:hover {
-            background-color: #0d6b5f;
+            background: #0056b3;
         }
 
         .cancel-btn {
-            background-color: #f0f2f5;
+            background: #f8f9fa;
             border: none;
-            color: var(--text-primary);
+            color: #666;
         }
 
         .cancel-btn:hover {
-            background-color: #e4e6e9;
+            background: #e9ecef;
         }
 
-        /* Mobile Optimizations */
+        /* Mobile Optimizations for Modal */
         @media (max-width: 768px) {
-            .modal {
-                padding: 0;
-            }
-
             .modal-content {
-                margin: 0;
-                width: 100%;
-                height: 100%;
-                max-height: 100vh;
-                border-radius: 0;
+                width: 95%;
+                margin: 10px auto;
             }
 
             .modal-header {
-                padding: 15px 0;
+                padding: 15px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.1rem;
+            }
+
+            #addEventForm {
+                padding: 15px;
             }
 
             .form-group {
@@ -429,42 +592,98 @@
 
             .form-group input,
             .form-group textarea {
-                font-size: 16px; /* Prevent zoom on iOS */
                 padding: 10px;
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            .poster-upload {
+                height: 120px;
             }
 
             .form-actions {
-                padding: 15px 0;
-                flex-direction: column-reverse;
-                gap: 8px;
+                padding: 15px;
+                flex-direction: column;
             }
 
-            .submit-btn,
-            .cancel-btn {
+            .form-actions button {
                 width: 100%;
-                padding: 12px;
-                font-size: 1rem;
+                padding: 14px;
+            }
+
+            /* Reverse order of buttons on mobile */
+            .form-actions {
+                flex-direction: column-reverse;
             }
         }
 
-        /* Add smooth scrolling for the entire page */
-        * {
-            scroll-behavior: smooth;
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
         }
 
-        /* Add some padding at the bottom to ensure content is not hidden behind form actions */
-        #addEventForm {
-            padding-bottom: 20px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        /* Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Add these button styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn i {
+            font-size: 1.1rem;
+        }
+
+        /* Add disabled state styles */
+        .btn:disabled,
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Add loading state styles */
+        .btn.loading,
+        .submit-btn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn.loading::after,
+        .submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
         }
     </style>
 </head>
@@ -478,27 +697,23 @@
             <nav>
                 <a href="dashboard.html" class="nav-item active">
                     <i class="fas fa-home"></i>
-                    Dashboard
+                    <span>Home</span>
                 </a>
                 <a href="teams.html" class="nav-item">
                     <i class="fas fa-users"></i>
-                    Teams
+                    <span>Teams</span>
                 </a>
                 <a href="events.html" class="nav-item">
                     <i class="fas fa-calendar-alt"></i>
-                    Events
+                    <span>Events</span>
                 </a>
                 <a href="contributions.html" class="nav-item">
                     <i class="fas fa-hand-holding-dollar"></i>
-                    Contributions
+                    <span>Give</span>
                 </a>
                 <a href="members.html" class="nav-item">
                     <i class="fas fa-user-group"></i>
-                    Members
-                </a>
-                <a href="settings.html" class="nav-item">
-                    <i class="fas fa-gear"></i>
-                    Settings
+                    <span>Members</span>
                 </a>
             </nav>
         </div>
@@ -506,8 +721,18 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="header">
-                <h1>KCA Christian Union Overview</h1>
-                <button class="btn btn-primary" onclick="openEventModal()">Add New Event</button>
+                <h1>Welcome to KCA CU</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openEventModal()">
+                        <i class="fas fa-plus"></i> New Event
+                    </button>
+                    <button id="adminButton" class="btn btn-primary" onclick="checkAndRedirectAdmin()" style="display: none;">
+                        <i class="fas fa-user-shield"></i> Admin
+                    </button>
+                    <button class="btn btn-secondary" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
             </div>
 
             <!-- Statistics Section -->
@@ -622,6 +847,91 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
+        // Function to handle logout
+        async function handleLogout() {
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) throw error;
+                
+                // Clear any stored data
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Show success message
+                showNotification('Successfully logged out', 'success');
+                
+                // Redirect to login page after a short delay
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+            } catch (error) {
+                console.error('Error during logout:', error);
+                showNotification('Failed to logout. Please try again.', 'error');
+            }
+        }
+
+        // Check authentication and admin status immediately
+        async function checkAdminAccess() {
+            try {
+                const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+                
+                if (sessionError || !session) {
+                    // No session found, redirect to login
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Get all admins
+                const { data: allAdmins, error: adminsError } = await supabaseClient
+                    .from('admins')
+                    .select(`
+                        *,
+                        users:user_id (
+                            email,
+                            user_metadata
+                        )
+                    `);
+
+                if (adminsError) {
+                    console.error('Error fetching admins:', adminsError);
+                } else {
+                    console.log('All Admins:', allAdmins);
+                }
+
+                // Check if current user is admin
+                const { data: adminData, error: adminError } = await supabaseClient
+                    .from('admins')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .single();
+
+                if (adminData) {
+                    // User is an admin, show the admin button
+                    document.getElementById('adminButton').style.display = 'inline-flex';
+                }
+
+                // User is authenticated
+                showNotification('Welcome back!', 'success');
+                
+            } catch (error) {
+                console.error('Error checking access:', error);
+                showNotification('An error occurred. Please try again.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
+        }
+
+        // Run access check when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdminAccess();
+            // Initialize other dashboard functions
+            loadStatistics();
+            loadEvents();
+            loadActivities();
+            loadTeamPerformance();
+        });
+
         const supabaseClient = supabase.createClient(
             'https://qmmwikoyptgkheztrwjn.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbXdpa295cHRna2hlenRyd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzODAyMTgsImV4cCI6MjA1Njk1NjIxOH0.-InUlGihCe9Z-pTSFdPr98UX6lTVIuQ2mVMrLDb9lY4'
@@ -977,11 +1287,100 @@
             })
             .subscribe();
 
-        // Initial load
-        loadStatistics();
-        loadEvents();
-        loadActivities();
-        loadTeamPerformance();
+        // Add this function for quick admin check and redirect
+        async function checkAndRedirectAdmin() {
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                if (error || !session) {
+                    showNotification('Please login first', 'error');
+                    return;
+                }
+
+                console.log('Current user:', session.user);
+
+                // First, ensure the admins table exists by trying to create it
+                const { error: createTableError } = await supabaseClient.rpc('create_admins_table');
+                if (createTableError) {
+                    console.error('Error creating table:', createTableError);
+                }
+
+                // Try to get admin data
+                const { data: adminData, error: adminError } = await supabaseClient
+                    .from('admins')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .single();
+
+                if (adminData) {
+                    console.log('Existing admin found:', adminData);
+                    window.location.href = 'admin.html';
+                    return;
+                }
+
+                console.log('Creating new admin entry...');
+                
+                // Create new admin entry
+                const { data: newAdmin, error: createError } = await supabaseClient
+                    .from('admins')
+                    .insert({
+                        user_id: session.user.id,
+                        created_at: new Date().toISOString(),
+                        role: 'admin'
+                    })
+                    .select()
+                    .single();
+
+                if (createError) {
+                    // If error is about missing table, create it
+                    if (createError.message.includes('relation "admins" does not exist')) {
+                        // Create the admins table using SQL
+                        const { error: sqlError } = await supabaseClient.rpc('setup_admin_table');
+                        if (sqlError) {
+                            console.error('Error setting up admin table:', sqlError);
+                            showNotification('Error setting up admin access. Please contact support.', 'error');
+                            return;
+                        }
+                        
+                        // Try creating admin entry again
+                        const { data: retryAdmin, error: retryError } = await supabaseClient
+                            .from('admins')
+                            .insert({
+                                user_id: session.user.id,
+                                created_at: new Date().toISOString(),
+                                role: 'admin'
+                            })
+                            .select()
+                            .single();
+                            
+                        if (retryError) {
+                            console.error('Error creating admin after table setup:', retryError);
+                            showNotification('Unable to create admin access. Please contact support.', 'error');
+                            return;
+                        }
+                        
+                        console.log('New admin created after table setup:', retryAdmin);
+                        showNotification('Admin access granted!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'admin.html';
+                        }, 1000);
+                        return;
+                    }
+                    
+                    console.error('Error creating admin:', createError);
+                    showNotification('Unable to create admin access. Please contact support.', 'error');
+                    return;
+                }
+
+                console.log('New admin created:', newAdmin);
+                showNotification('Admin access granted!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1000);
+            } catch (error) {
+                console.error('Error in admin check:', error);
+                showNotification('Error checking admin status. Please try again.', 'error');
+            }
+        }
     </script>
 </body>
 </html> 
