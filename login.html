@@ -7,11 +7,218 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Initialize the Supabase client correctly
-        const supabaseClient = supabase.createClient(
-            'https://qmmwikoyptgkheztrwjn.supabase.co',  // Replace with your Supabase project URL
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbXdpa295cHRna2hlenRyd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzODAyMTgsImV4cCI6MjA1Njk1NjIxOH0.-InUlGihCe9Z-pTSFdPr98UX6lTVIuQ2mVMrLDb9lY4'  // Replace with your Supabase anon key
+        // Initialize Supabase client with session handling
+        const supabaseClient = window.supabase.createClient(
+            'https://qmmwikoyptgkheztrwjn.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbXdpa295cHRna2hlenRyd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzODAyMTgsImV4cCI6MjA1Njk1NjIxOH0.-InUlGihCe9Z-pTSFdPr98UX6lTVIuQ2mVMrLDb9lY4',
+            {
+                auth: {
+                    storage: window.localStorage,
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: true
+                }
+            }
         );
+
+        // Function to show toast messages
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Check if user is already logged in
+        async function checkExistingSession() {
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            if (session) {
+                // Check if user is admin
+                const { data: adminData } = await supabaseClient
+                    .from('admins')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .single();
+
+                if (adminData) {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check existing session when page loads
+            checkExistingSession();
+
+            // Login form submission
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const btn = form.querySelector('.submit-btn');
+                btn.disabled = true;
+
+                try {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: form.querySelector('input[type="email"]').value,
+                        password: form.querySelector('input[type="password"]').value
+                    });
+
+                    if (error) throw error;
+
+                    // Check if user is admin
+                    const { data: adminData } = await supabaseClient
+                        .from('admins')
+                        .select('*')
+                        .eq('user_id', data.user.id)
+                        .single();
+
+                    showToast('Successfully logged in!', 'success');
+                    
+                    // Redirect based on user role
+                    setTimeout(() => {
+                        if (adminData) {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
+                    }, 1000);
+
+                } catch (error) {
+                    showToast(error.message, 'error');
+                    btn.disabled = false;
+                }
+            });
+
+            // Toggle between forms
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons and forms
+                    toggleBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+
+                    // Add active class to clicked button and corresponding form
+                    btn.classList.add('active');
+                    document.getElementById(`${btn.dataset.form}Form`).classList.add('active');
+                });
+            });
+
+            // Signup form submission
+            document.getElementById('signupForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const btn = form.querySelector('.submit-btn');
+                btn.disabled = true;
+
+                try {
+                    // Check local storage for last attempt time
+                    const lastAttempt = localStorage.getItem('lastSignupAttempt');
+                    const now = Date.now();
+                    if (lastAttempt && (now - parseInt(lastAttempt)) < 60000) { // 1 minute cooldown
+                        const remainingTime = Math.ceil((60000 - (now - parseInt(lastAttempt))) / 1000);
+                        showToast(`Please wait ${remainingTime} seconds before trying again`, 'warning');
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    // Store attempt time
+                    localStorage.setItem('lastSignupAttempt', now.toString());
+
+                    const { data: { user }, error } = await supabaseClient.auth.signUp({
+                        email: form.querySelector('input[type="email"]').value,
+                        password: form.querySelector('input[type="password"]').value,
+                        options: {
+                            data: {
+                                full_name: form.querySelector('input[placeholder="Full Name"]').value,
+                                course: form.querySelector('input[placeholder="Course"]').value
+                            }
+                        }
+                    });
+
+                    if (error) {
+                        if (error.message.includes('rate limit')) {
+                            showToast('Too many attempts. Please wait a few minutes before trying again.', 'error');
+                        } else {
+                            throw error;
+                        }
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    showToast('Verification email sent! Please check your inbox.', 'success');
+                    form.reset();
+                    
+                    // Switch to login view after successful signup
+                    setTimeout(() => {
+                        document.querySelector('[data-form="login"]').click();
+                    }, 2000);
+
+                } catch (error) {
+                    console.error('Error during signup:', error);
+                    showToast(error.message, 'error');
+                    btn.disabled = false;
+                }
+            });
+        });
+
+        async function handleSignUp(event) {
+            event.preventDefault();
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const fullName = document.getElementById('fullName').value;
+
+            try {
+                // Check local storage for last attempt time
+                const lastAttempt = localStorage.getItem('lastSignupAttempt');
+                const now = Date.now();
+                if (lastAttempt && (now - parseInt(lastAttempt)) < 60000) { // 1 minute cooldown
+                    const remainingTime = Math.ceil((60000 - (now - parseInt(lastAttempt))) / 1000);
+                    showToast(`Please wait ${remainingTime} seconds before trying again`, 'warning');
+                    return;
+                }
+
+                // Store attempt time
+                localStorage.setItem('lastSignupAttempt', now.toString());
+
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: fullName
+                        }
+                    }
+                });
+
+                if (error) {
+                    if (error.message.includes('rate limit')) {
+                        showToast('Too many attempts. Please try again in a few minutes.', 'error');
+                    } else {
+                        throw error;
+                    }
+                    return;
+                }
+
+                showToast('Verification email sent! Please check your inbox.', 'success');
+                // Clear the form
+                document.getElementById('signupForm').reset();
+                
+                // Switch to login view after successful signup
+                setTimeout(() => {
+                    showLoginForm();
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error during signup:', error);
+                showToast(error.message, 'error');
+            }
+        }
     </script>
     <style>
         :root {
@@ -53,9 +260,25 @@
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
             margin-bottom: 1rem;
+        }
+
+        .logo img {
+            height: 80px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .logo img {
+                height: 60px;
+            }
         }
 
         .logo-section h1 {
@@ -181,7 +404,9 @@
 <body>
     <div class="auth-card">
         <div class="logo-section">
-            <img src="./images/KCAU-LOGO.jpg" alt="KCA CU Logo" class="logo">
+            <div class="logo">
+                <img src="KCAU-LOGO.jpg" alt="KCA CU Logo">
+            </div>
             <h1>KCA Christian Union</h1>
         </div>
 
@@ -224,93 +449,5 @@
     </div>
 
     <div id="toast" class="toast"></div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Toggle between forms
-            const toggleBtns = document.querySelectorAll('.toggle-btn');
-            toggleBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    // Remove active class from all buttons and forms
-                    toggleBtns.forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
-
-                    // Add active class to clicked button and corresponding form
-                    btn.classList.add('active');
-                    document.getElementById(`${btn.dataset.form}Form`).classList.add('active');
-                });
-            });
-
-            // Handle form submissions
-            const showToast = (message, type) => {
-                const toast = document.getElementById('toast');
-                toast.textContent = message;
-                toast.className = `toast ${type}`;
-                toast.classList.add('show');
-
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            };
-
-            // Login form submission
-            document.getElementById('loginForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const form = e.target;
-                const btn = form.querySelector('.submit-btn');
-                btn.disabled = true;
-
-                try {
-                    const { data, error } = await supabaseClient.auth.signInWithPassword({
-                        email: form.querySelector('input[type="email"]').value,
-                        password: form.querySelector('input[type="password"]').value
-                    });
-
-                    if (error) throw error;
-
-                    showToast('Successfully logged in!', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/dashboard.html';
-                    }, 1000);
-
-                } catch (error) {
-                    showToast(error.message, 'error');
-                    btn.disabled = false;
-                }
-            });
-
-            // Signup form submission
-            document.getElementById('signupForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const form = e.target;
-                const btn = form.querySelector('.submit-btn');
-                btn.disabled = true;
-
-                try {
-                    const { data: { user }, error } = await supabaseClient.auth.signUp({
-                        email: form.querySelector('input[type="email"]').value,
-                        password: form.querySelector('input[type="password"]').value,
-                        options: {
-                            data: {
-                                full_name: form.querySelector('input[placeholder="Full Name"]').value,
-                                course: form.querySelector('input[placeholder="Course"]').value
-                            }
-                        }
-                    });
-
-                    if (error) throw error;
-
-                    showToast('Account created successfully!', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/dashboard.html';
-                    }, 1000);
-
-                } catch (error) {
-                    showToast(error.message, 'error');
-                    btn.disabled = false;
-                }
-            });
-        });
-    </script>
 </body>
 </html> 
