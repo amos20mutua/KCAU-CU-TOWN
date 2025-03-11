@@ -1,0 +1,101 @@
+:root {
+    --kca-blue: #003366;    /* KCA Primary Blue */
+    --kca-gold: #FFB800;    /* KCA Gold/Yellow */
+    --kca-light-blue: #004d99;
+    --white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    line-height: 1.6;
+}
+
+.container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-form {
+    background-color: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+input:focus {
+    outline: none;
+    border-color: #4A90E2;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--kca-blue);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: var(--kca-light-blue);
+}
+
+.register-link {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.register-link a {
+    color: var(--kca-blue);
+    text-decoration: none;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+} 

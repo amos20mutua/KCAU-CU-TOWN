@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCA Christian Union - Achievements</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/achievements.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar remains the same -->
+        
+        <main class="main-content">
+            <div class="achievements-content">
+                <div class="achievements-tabs">
+                    <button class="tab-btn active" data-tab="individual">Individual</button>
+                    <button class="tab-btn" data-tab="team">Team</button>
+                    <button class="tab-btn" data-tab="cu">Christian Union</button>
+                </div>
+
+                <div class="achievements-section" id="individual">
+                    <div class="achievement-cards">
+                        <!-- Individual achievements -->
+                    </div>
+                </div>
+
+                <div class="achievements-section" id="team" style="display: none;">
+                    <div class="achievement-cards">
+                        <!-- Team achievements -->
+                    </div>
+                </div>
+
+                <div class="achievements-section" id="cu" style="display: none;">
+                    <div class="achievement-cards">
+                        <!-- CU achievements -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Add to your HTML files (e.g., index.html, dashboard.html, etc.) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Initialize Supabase client
+  const supabaseUrl = 'YOUR_SUPABASE_PROJECT_URL'
+  const supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY'
+  const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey)
+</script>
+</body>
+</html> 

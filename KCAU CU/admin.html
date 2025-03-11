@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - KCA CU Fundraiser</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --dark-color: #343a40;
+            --light-color: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* Admin Layout */
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--dark-color);
+            color: white;
+            padding: 1rem;
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            background: var(--primary-color);
+        }
+
+        .nav-item i {
+            margin-right: 0.8rem;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            margin-left: 250px;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--light-color);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Action Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: black;
+        }
+
+        /* Search and Filter */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 300px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Additional styles for donations management */
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge.pending {
+            background: var(--warning-color);
+            color: #000;
+        }
+
+        .status-badge.approved {
+            background: var(--success-color);
+            color: #fff;
+        }
+
+        .status-badge.rejected {
+            background: var(--danger-color);
+            color: #fff;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .filter-select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: white;
+        }
+
+        .table-container {
+            margin-top: 1rem;
+        }
+
+        /* Loading States */
+        .loading {
+            position: relative;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            margin: -20px 0 0 -20px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success Message */
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            border: 1px solid #c3e6cb;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            border: 1px solid #f5c6cb;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* Mobile Sidebar Toggle */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        /* Add these styles */
+        .settings-card {
+            background: white;
+            padding: var(--card-padding);
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Dashboard</h2>
+            </div>
+            <div class="nav-item active" onclick="showSection('dashboard')">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </div>
+            <div class="nav-item" onclick="showSection('donations')">
+                <i class="fas fa-hand-holding-usd"></i> Donations
+            </div>
+            <div class="nav-item" onclick="showSection('teams')">
+                <i class="fas fa-users"></i> Teams
+            </div>
+            <div class="nav-item" onclick="showSection('users')">
+                <i class="fas fa-user"></i> Users
+            </div>
+            <div class="nav-item" onclick="showSection('reports')">
+                <i class="fas fa-chart-bar"></i> Reports
+            </div>
+            <div class="nav-item" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i> Settings
+            </div>
+            <div class="nav-item" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section-content">
+                <h1>Dashboard Overview</h1>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <h3>Total Raised</h3>
+                        <div class="value" id="total-raised">Ksh 0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Contributors</h3>
+                        <div class="value" id="total-contributors">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Teams</h3>
+                        <div class="value" id="active-teams">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Goal Progress</h3>
+                        <div class="value" id="goal-progress">0%</div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Donations Over Time</h3>
+                        <canvas id="donations-chart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Top Teams</h3>
+                        <canvas id="teams-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3>Recent Donations</h3>
+                    <table id="recent-donations">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Donor</th>
+                                <th>Amount</th>
+                                <th>Team</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Donations Section -->
+            <div id="donations-section" class="section-content" style="display: none;">
+                <h1>Donations Management</h1>
+                <div class="filters">
+                    <input type="text" class="search-input" placeholder="Search donations..." onkeyup="filterDonations(this.value)">
+                    <select class="filter-select" onchange="filterDonationsByStatus(this.value)">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="exportDonations()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="donations-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Donor</th>
+                                <th>Amount</th>
+                                <th>Team</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Teams Section -->
+            <div id="teams-section" class="section-content" style="display: none;">
+                <h1>Teams Management</h1>
+                <div class="table-container">
+                    <table id="teams-table">
+                        <thead>
+                            <tr>
+                                <th>Team Name</th>
+                                <th>Members</th>
+                                <th>Goal</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="users-section" class="section-content" style="display: none;">
+                <h1>Users Management</h1>
+                <div class="table-container">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports-section" class="section-content" style="display: none;">
+                <h1>Reports</h1>
+                <div class="reports-container">
+                    <!-- Reports content will be added here -->
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="section-content" style="display: none;">
+                <h1>Settings</h1>
+                <div class="settings-container">
+                    <div class="settings-card">
+                        <h3>Campaign Goal</h3>
+                        <div class="form-group">
+                            <label for="campaignGoal">Set Campaign Goal (KSH)</label>
+                            <div class="input-group">
+                                <input type="number" id="campaignGoal" class="form-control" min="1000" step="1000">
+                                <button class="btn btn-primary" onclick="updateCampaignGoal()">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://qmmwikoyptgkheztrwjn.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbXdpa295cHRna2hlenRyd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzODAyMTgsImV4cCI6MjA1Njk1NjIxOH0.-InUlGihCe9Z-pTSFdPr98UX6lTVIuQ2mVMrLDb9lY4';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Global variables for charts
+        let donationsChart = null;
+        let teamsChart = null;
+
+        // Check admin authentication
+        async function checkAdminAuth() {
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+                if (error || !user) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+
+                // Check if user is admin
+                const { data: adminData, error: adminError } = await supabase
+                    .from('admins')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (adminError || !adminData) {
+                    showError('Access denied. Admin privileges required.');
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+        // Load dashboard data with error handling
+        async function loadDashboardData() {
+            try {
+                document.getElementById('dashboard-section').classList.add('loading');
+
+                // Get campaign goal from settings
+                const { data: settings, error: settingsError } = await supabase
+                    .from('campaign_settings')
+                    .select('goal_amount')
+                    .eq('id', 1)
+                    .single();
+
+                if (settingsError) throw settingsError;
+
+                const goalAmount = settings?.goal_amount || 200000; // Default to 200,000 if not set
+
+                // Get total raised
+                const { data: contributions, error: contribError } = await supabase
+                    .from('contributions')
+                    .select('amount')
+                    .eq('status', 'approved');
+
+                if (contribError) throw contribError;
+
+                const totalAmount = contributions.reduce((sum, contrib) => sum + contrib.amount, 0);
+                document.getElementById('total-raised').textContent = `KSH ${totalAmount.toLocaleString()}`;
+
+                // Load contributor count
+                const { count: contributorCount, error: countError } = await supabase
+                    .from('contributions')
+                    .select('contributor_id', { count: 'exact', distinct: true })
+                    .eq('status', 'approved');
+
+                if (countError) throw countError;
+                document.getElementById('total-contributors').textContent = contributorCount;
+
+                // Load active teams
+                const { count: teamCount, error: teamError } = await supabase
+                    .from('teams')
+                    .select('id', { count: 'exact' });
+
+                if (teamError) throw teamError;
+                document.getElementById('active-teams').textContent = teamCount;
+
+                // Calculate goal progress
+                const progress = (totalAmount / goalAmount) * 100;
+                document.getElementById('goal-progress').textContent = `${Math.round(progress)}%`;
+
+                // Update campaign goal input in settings
+                const campaignGoalInput = document.getElementById('campaignGoal');
+                if (campaignGoalInput) {
+                    campaignGoalInput.value = goalAmount;
+                }
+
+                // Load recent donations
+                await loadRecentDonations();
+
+                // Initialize charts
+                await initializeCharts();
+
+                document.getElementById('dashboard-section').classList.remove('loading');
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                document.getElementById('dashboard-section').classList.remove('loading');
+                showError('Failed to load dashboard data. Please refresh the page.');
+            }
+        }
+
+        // Initialize charts with proper cleanup
+        async function initializeCharts() {
+            try {
+                // Destroy existing charts if they exist
+                if (donationsChart) {
+                    donationsChart.destroy();
+                }
+                if (teamsChart) {
+                    teamsChart.destroy();
+                }
+
+                // Get donations data for the last 6 months
+                const sixMonthsAgo = new Date();
+                sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+                const { data: monthlyDonations, error: donationsError } = await supabase
+                    .from('contributions')
+                    .select('amount, created_at')
+                    .eq('status', 'approved')
+                    .gte('created_at', sixMonthsAgo.toISOString());
+
+                if (donationsError) throw donationsError;
+
+                // Process monthly donations data
+                const monthlyData = processMonthlyDonations(monthlyDonations);
+
+                // Create donations chart
+                const donationsCtx = document.getElementById('donations-chart').getContext('2d');
+                donationsChart = new Chart(donationsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: monthlyData.labels,
+                        datasets: [{
+                            label: 'Donations (Ksh)',
+                            data: monthlyData.values,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+
+                // Get team data
+                const { data: teams, error: teamsError } = await supabase
+                    .from('teams')
+                    .select(`
+                        name,
+                        contributions (
+                            amount
+                        )
+                    `);
+
+                if (teamsError) throw teamsError;
+
+                // Process team data
+                const teamData = processTeamData(teams);
+
+                // Create teams chart
+                const teamsCtx = document.getElementById('teams-chart').getContext('2d');
+                teamsChart = new Chart(teamsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: teamData.labels,
+                        datasets: [{
+                            label: 'Amount Raised (Ksh)',
+                            data: teamData.values,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+                showError('Failed to load charts. Please refresh the page.');
+            }
+        }
+
+        // Process monthly donations data
+        function processMonthlyDonations(donations) {
+            const months = {};
+            const labels = [];
+            const values = [];
+
+            // Initialize months object with zeros
+            for (let i = 0; i < 6; i++) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                const monthKey = date.toLocaleString('default', { month: 'short' });
+                months[monthKey] = 0;
+                labels.unshift(monthKey);
+            }
+
+            // Sum donations by month
+            donations.forEach(donation => {
+                const month = new Date(donation.created_at).toLocaleString('default', { month: 'short' });
+                if (months.hasOwnProperty(month)) {
+                    months[month] += donation.amount;
+                }
+            });
+
+            // Convert to arrays
+            labels.forEach(month => {
+                values.push(months[month]);
+            });
+
+            return { labels, values };
+        }
+
+        // Process team data
+        function processTeamData(teams) {
+            const teamTotals = teams.map(team => ({
+                name: team.name,
+                total: team.contributions.reduce((sum, contrib) => sum + contrib.amount, 0)
+            }));
+
+            // Sort by total and get top 5
+            teamTotals.sort((a, b) => b.total - a.total);
+            const top5Teams = teamTotals.slice(0, 5);
+
+            return {
+                labels: top5Teams.map(team => team.name),
+                values: top5Teams.map(team => team.total)
+            };
+        }
+
+        // Navigation functions with error handling
+        async function showSection(section) {
+            try {
+                // First check authentication
+                const isAuthenticated = await checkAdminAuth();
+                if (!isAuthenticated) {
+                    return;
+                }
+
+                // Show loading state
+                document.body.style.cursor = 'wait';
+                
+                // Hide all sections and remove active class from nav items
+                document.querySelectorAll('.section-content').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.classList.remove('active');
+                });
+
+                // Show selected section and activate nav item
+                const sectionElement = document.getElementById(`${section}-section`);
+                if (!sectionElement) {
+                    throw new Error(`Section ${section} not found`);
+                }
+                
+                sectionElement.style.display = 'block';
+                document.querySelector(`.nav-item[onclick="showSection('${section}')"]`).classList.add('active');
+
+                // Load section specific data
+                switch(section) {
+                    case 'dashboard':
+                        await loadDashboardData();
+                        break;
+                    case 'donations':
+                        await loadDonationsData();
+                        break;
+                    case 'teams':
+                        await loadTeamsData();
+                        break;
+                    case 'users':
+                        await loadUsersData();
+                        break;
+                    // Add other cases as needed
+                }
+            } catch (error) {
+                console.error(`Error showing section ${section}:`, error);
+                showError(`Failed to load ${section} section. Please try again.`);
+            } finally {
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        // Error handling function
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            
+            // Remove any existing error messages
+            document.querySelectorAll('.error-message').forEach(el => el.remove());
+            
+            // Add the new error message at the top of the main content
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(errorDiv, mainContent.firstChild);
+            
+            // Remove the error message after 5 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        // Initialize page with error handling
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const isAuthenticated = await checkAdminAuth();
+                if (isAuthenticated) {
+                    await loadDashboardData();
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showError('Failed to initialize the page. Please refresh.');
+            }
+        });
+
+        // Load recent donations
+        async function loadRecentDonations() {
+            try {
+                const { data: donations, error } = await supabase
+                    .from('contributions')
+                    .select(`
+                        amount,
+                        created_at,
+                        status,
+                        users (
+                            full_name
+                        ),
+                        teams (
+                            name
+                        )
+                    `)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+
+                const tbody = document.querySelector('#recent-donations tbody');
+                tbody.innerHTML = donations.map(donation => `
+                    <tr>
+                        <td>${new Date(donation.created_at).toLocaleDateString()}</td>
+                        <td>${donation.users?.full_name || 'Anonymous'}</td>
+                        <td>Ksh ${donation.amount.toLocaleString()}</td>
+                        <td>${donation.teams?.name || 'N/A'}</td>
+                        <td>
+                            <span class="status-badge ${donation.status}">
+                                ${donation.status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading recent donations:', error);
+                showError('Failed to load recent donations');
+            }
+        }
+
+        // Load donations data
+        async function loadDonationsData() {
+            try {
+                document.getElementById('donations-section').classList.add('loading');
+                
+                const { data: donations, error } = await supabase
+                    .from('contributions')
+                    .select(`
+                        *,
+                        users (
+                            full_name,
+                            email
+                        ),
+                        teams (
+                            name
+                        )
+                    `)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const tbody = document.querySelector('#donations-table tbody');
+                tbody.innerHTML = donations.map(donation => `
+                    <tr data-id="${donation.id}">
+                        <td>${new Date(donation.created_at).toLocaleDateString()}</td>
+                        <td>
+                            ${donation.users?.full_name || 'Anonymous'}<br>
+                            <small>${donation.users?.email || ''}</small>
+                        </td>
+                        <td>Ksh ${donation.amount.toLocaleString()}</td>
+                        <td>${donation.teams?.name || 'N/A'}</td>
+                        <td>
+                            <span class="status-badge ${donation.status}">
+                                ${donation.status}
+                            </span>
+                        </td>
+                        <td>
+                            ${donation.status === 'pending' ? `
+                                <button class="btn btn-success btn-sm" onclick="updateDonationStatus(${donation.id}, 'approved')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="updateDonationStatus(${donation.id}, 'rejected')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                            <button class="btn btn-primary btn-sm" onclick="viewDonationDetails(${donation.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('donations-section').classList.remove('loading');
+            } catch (error) {
+                console.error('Error loading donations:', error);
+                showError('Failed to load donations data');
+                document.getElementById('donations-section').classList.remove('loading');
+            }
+        }
+
+        // Load teams data
+        async function loadTeamsData() {
+            try {
+                document.getElementById('teams-section').classList.add('loading');
+                
+                const { data: teams, error } = await supabase
+                    .from('teams')
+                    .select(`
+                        *,
+                        team_members (
+                            id
+                        ),
+                        contributions (
+                            amount
+                        )
+                    `);
+
+                if (error) throw error;
+
+                const tbody = document.querySelector('#teams-table tbody');
+                tbody.innerHTML = teams.map(team => {
+                    const totalRaised = team.contributions.reduce((sum, contrib) => sum + contrib.amount, 0);
+                    const progress = (totalRaised / team.goal) * 100;
+                    
+                    return `
+                        <tr data-id="${team.id}">
+                            <td>${team.name}</td>
+                            <td>${team.team_members.length}</td>
+                            <td>Ksh ${team.goal.toLocaleString()}</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: ${progress}%"></div>
+                                </div>
+                                ${Math.round(progress)}%
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="viewTeamDetails(${team.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteTeam(${team.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                document.getElementById('teams-section').classList.remove('loading');
+            } catch (error) {
+                console.error('Error loading teams:', error);
+                showError('Failed to load teams data');
+                document.getElementById('teams-section').classList.remove('loading');
+            }
+        }
+
+        // Load users data
+        async function loadUsersData() {
+            try {
+                document.getElementById('users-section').classList.add('loading');
+                
+                const { data: users, error } = await supabase
+                    .from('users')
+                    .select('*');
+
+                if (error) throw error;
+
+                const tbody = document.querySelector('#users-table tbody');
+                tbody.innerHTML = users.map(user => `
+                    <tr data-id="${user.id}">
+                        <td>${user.full_name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role || 'Member'}</td>
+                        <td>
+                            <span class="status-badge ${user.status || 'active'}">
+                                ${user.status || 'Active'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="viewUserDetails(${user.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="toggleUserStatus(${user.id})">
+                                <i class="fas fa-power-off"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('users-section').classList.remove('loading');
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showError('Failed to load users data');
+                document.getElementById('users-section').classList.remove('loading');
+            }
+        }
+
+        // Update donation status
+        async function updateDonationStatus(donationId, status) {
+            try {
+                const { error } = await supabase
+                    .from('contributions')
+                    .update({ status: status })
+                    .eq('id', donationId);
+
+                if (error) throw error;
+
+                // Refresh donations table
+                await loadDonationsData();
+                showSuccess(`Donation ${status} successfully`);
+            } catch (error) {
+                console.error('Error updating donation:', error);
+                showError('Failed to update donation status');
+            }
+        }
+
+        // Filter donations
+        function filterDonations(searchTerm) {
+            const rows = document.querySelectorAll('#donations-table tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm.toLowerCase()) ? '' : 'none';
+            });
+        }
+
+        function filterDonationsByStatus(status) {
+            const rows = document.querySelectorAll('#donations-table tbody tr');
+            rows.forEach(row => {
+                if (status === 'all') {
+                    row.style.display = '';
+                    return;
+                }
+                const statusBadge = row.querySelector('.status-badge');
+                row.style.display = statusBadge.classList.contains(status) ? '' : 'none';
+            });
+        }
+
+        // Export donations
+        function exportDonations() {
+            const table = document.getElementById('donations-table');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            
+            let csv = [];
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('th,td'));
+                const csvRow = cells.map(cell => {
+                    let text = cell.textContent.trim().replace(/\n/g, ' ');
+                    if (text.includes(',')) {
+                        text = `"${text.replace(/"/g, '""')}"`;
+                    }
+                    return text;
+                });
+                csv.push(csvRow.join(','));
+            });
+
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `donations-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Success message function
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            
+            // Remove any existing success messages
+            document.querySelectorAll('.success-message').forEach(el => el.remove());
+            
+            // Add the new success message at the top of the main content
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(successDiv, mainContent.firstChild);
+            
+            // Remove the success message after 3 seconds
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                showError('Failed to logout. Please try again.');
+            }
+        }
+
+        // Add this JavaScript function
+        async function updateCampaignGoal() {
+            try {
+                const goalAmount = parseFloat(document.getElementById('campaignGoal').value);
+                if (isNaN(goalAmount) || goalAmount < 1000) {
+                    showError('Please enter a valid amount (minimum 1000 KSH)');
+                    return;
+                }
+
+                const { data, error } = await supabase
+                    .from('campaign_settings')
+                    .upsert({ 
+                        id: 1, // Using a single row for settings
+                        goal_amount: goalAmount,
+                        updated_at: new Date().toISOString()
+                    });
+
+                if (error) throw error;
+
+                showSuccess('Campaign goal updated successfully');
+                loadDashboardData(); // Refresh dashboard data
+            } catch (error) {
+                console.error('Error updating campaign goal:', error);
+                showError('Failed to update campaign goal');
+            }
+        }
+    </script>
+</body>
+</html> 

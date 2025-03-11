@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - KCA Christian Union</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/settings.css">
+</head>
+<body>
+    <!-- Sidebar will be included here -->
+    <div class="main-content">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h1>Settings</h1>
+                <div class="last-saved" id="lastSaved">
+                    Last saved: <span>Just now</span>
+                </div>
+            </div>
+
+            <div class="settings-grid">
+                <!-- Profile Settings -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <i class="fas fa-user-circle"></i>
+                        <h2>Profile Settings</h2>
+                    </div>
+                    <div class="settings-card-content">
+                        <div class="avatar-upload">
+                            <img id="currentAvatar" src="/images/default-avatar.png" alt="Profile Picture">
+                            <div class="avatar-actions">
+                                <button class="btn-upload" onclick="document.getElementById('avatarInput').click()">
+                                    <i class="fas fa-camera"></i> Change Photo
+                                </button>
+                                <input type="file" id="avatarInput" hidden accept="image/*">
+                            </div>
+                        </div>
+                        <form id="profileForm" class="settings-form">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="fullName" placeholder="Your full name">
+                            </div>
+                            <div class="form-group">
+                                <label>Course</label>
+                                <input type="text" id="course" placeholder="Your course">
+                            </div>
+                            <div class="form-group">
+                                <label>Year of Study</label>
+                                <select id="yearOfStudy">
+                                    <option value="1">1st Year</option>
+                                    <option value="2">2nd Year</option>
+                                    <option value="3">3rd Year</option>
+                                    <option value="4">4th Year</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Bio</label>
+                                <textarea id="bio" placeholder="Tell us about yourself"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <i class="fas fa-bell"></i>
+                        <h2>Notification Settings</h2>
+                    </div>
+                    <div class="settings-card-content">
+                        <div class="notification-options">
+                            <div class="notification-option">
+                                <div class="option-info">
+                                    <h3>Event Reminders</h3>
+                                    <p>Get notified about upcoming events</p>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" id="eventNotifications" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="notification-option">
+                                <div class="option-info">
+                                    <h3>Team Messages</h3>
+                                    <p>Receive notifications for new team messages</p>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" id="messageNotifications" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="notification-option">
+                                <div class="option-info">
+                                    <h3>Contribution Updates</h3>
+                                    <p>Get notified about contribution receipts</p>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" id="contributionNotifications">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme Settings -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <i class="fas fa-paint-brush"></i>
+                        <h2>Appearance</h2>
+                    </div>
+                    <div class="settings-card-content">
+                        <div class="theme-options">
+                            <div class="theme-option">
+                                <h3>Theme Mode</h3>
+                                <div class="theme-selector">
+                                    <button class="theme-btn active" data-theme="light">
+                                        <i class="fas fa-sun"></i>
+                                        Light
+                                    </button>
+                                    <button class="theme-btn" data-theme="dark">
+                                        <i class="fas fa-moon"></i>
+                                        Dark
+                                    </button>
+                                    <button class="theme-btn" data-theme="system">
+                                        <i class="fas fa-laptop"></i>
+                                        System
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="theme-option">
+                                <h3>Accent Color</h3>
+                                <div class="color-picker">
+                                    <button class="color-btn active" data-color="#4f46e5"></button>
+                                    <button class="color-btn" data-color="#16a34a"></button>
+                                    <button class="color-btn" data-color="#ea580c"></button>
+                                    <button class="color-btn" data-color="#dc2626"></button>
+                                    <button class="color-btn" data-color="#7c3aed"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <h2>Privacy & Security</h2>
+                    </div>
+                    <div class="settings-card-content">
+                        <div class="privacy-options">
+                            <div class="privacy-option">
+                                <div class="option-info">
+                                    <h3>Profile Visibility</h3>
+                                    <p>Control who can see your profile information</p>
+                                </div>
+                                <select id="profileVisibility">
+                                    <option value="public">Everyone</option>
+                                    <option value="members">Members Only</option>
+                                    <option value="team">My Team Only</option>
+                                </select>
+                            </div>
+                            <div class="privacy-option">
+                                <div class="option-info">
+                                    <h3>Activity Status</h3>
+                                    <p>Show when you're active in the app</p>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" id="activityStatus" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="danger-btn" onclick="handleLogout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

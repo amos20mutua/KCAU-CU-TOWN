@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - KCA Christian Union</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/main.min.css' rel='stylesheet' />
+    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.10/main.min.css' rel='stylesheet' />
+
+    <!-- Initialize Supabase -->
+    <script>
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
+
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.10/main.min.js'></script>
+
+    <style>
+        /* Base styles */
+        :root {
+            --primary-color: #128C7E;
+            --secondary-color: #25D366;
+            --background-color: #f0f2f5;
+            --card-color: #ffffff;
+            --text-primary: #111b21;
+            --text-secondary: #667781;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            width: 280px;
+            background: #111b21;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar .logo {
+            padding: 20px;
+            text-align: center;
+            background: var(--primary-color);
+        }
+
+        .sidebar .logo img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .sidebar .logo h2 {
+            color: white;
+            font-size: 18px;
+        }
+
+        .sidebar nav {
+            padding: 10px;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #aebac1;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar nav a i {
+            width: 24px;
+            font-size: 18px;
+        }
+
+        .sidebar nav a span {
+            margin-left: 12px;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background: #222e35;
+            color: white;
+        }
+
+        /* Main content styles */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+        }
+
+        /* Calendar styles */
+        .calendar-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        /* Header and Button Styles */
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h1 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .header-title p {
+            color: var(--text-secondary);
+            margin: 5px 0 0;
+        }
+
+        .create-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .create-btn:hover {
+            background-color: #0d6b5f;
+            transform: translateY(-1px);
+        }
+
+        .create-btn i {
+            font-size: 14px;
+        }
+
+        /* Make sure button is visible on mobile */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .create-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Calendar specific styles */
+        .fc {
+            max-width: 100%;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .fc .fc-toolbar-title {
+            font-size: 1.5em;
+            color: var(--primary-color);
+        }
+
+        .fc .fc-button-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .fc .fc-button-primary:hover {
+            background-color: #0d6b5f;
+            border-color: #0d6b5f;
+        }
+
+        /* Updated Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto; /* Allow scrolling */
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 12px;
+            position: relative;
+            max-height: 85vh; /* Maximum height */
+            overflow-y: auto; /* Allow scrolling within modal */
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+        }
+
+        /* Updated Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+            max-height: 200px;
+        }
+
+        /* Updated Poster Upload Styles */
+        .poster-upload {
+            position: relative;
+            width: 100%;
+            height: 150px; /* Reduced height */
+            margin-top: 10px;
+        }
+
+        .poster-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .cancel-btn,
+        .submit-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .cancel-btn {
+            background-color: #f0f2f5;
+            border: none;
+            color: var(--text-primary);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .modal {
+                padding: 10px;
+            }
+
+            .modal-content {
+                margin: 10px auto;
+                padding: 15px;
+                width: 95%;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                gap: 8px;
+            }
+
+            .submit-btn,
+            .cancel-btn {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+
+        /* Add these to your existing styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background-color: #25D366;
+        }
+
+        .notification.error {
+            background-color: #dc3545;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Hide add event button by default */
+        #addEventBtn {
+            display: none; /* Will be shown only to authorized users */
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="kca-logo.png" alt="KCA Logo">
+                <h2>KCA Christian Union</h2>
+            </div>
+            <nav>
+                <a href="dashboard.html">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="teams.html">
+                    <i class="fas fa-users"></i>
+                    <span>Teams</span>
+                </a>
+                <a href="events.html" class="active">
+                    <i class="fas fa-calendar"></i>
+                    <span>Events</span>
+                </a>
+                <a href="contributions.html">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <span>Contributions</span>
+                </a>
+                <a href="members.html">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Members</span>
+                </a>
+                <a href="settings.html">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title">
+                    <h1><i class="fas fa-calendar"></i> Events Calendar</h1>
+                    <p>View and manage upcoming events</p>
+                </div>
+                <button onclick="openAddEventModal()" class="create-btn" id="addEventBtn">
+                    <i class="fas fa-plus"></i> Add Event
+                </button>
+            </div>
+
+            <!-- Calendar Container -->
+            <div class="calendar-container">
+                <div id="calendar"></div>
+            </div>
+        </div>
+
+        <!-- Add Event Modal -->
+        <div id="addEventModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-calendar-plus"></i> Add New Event</h2>
+                    <button onclick="closeAddEventModal()" class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="addEventForm" onsubmit="handleAddEvent(event)">
+                    <div class="form-group">
+                        <label for="eventTitle">Event Title</label>
+                        <input type="text" id="eventTitle" required placeholder="Enter event title">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDate">Date</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTime">Time</label>
+                        <input type="time" id="eventTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDescription">Description</label>
+                        <textarea id="eventDescription" required placeholder="Enter event description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventPoster">Event Poster (Optional)</label>
+                        <div class="poster-upload">
+                            <input type="file" id="eventPoster" accept="image/*" onchange="previewPoster(event)">
+                            <div class="poster-preview" id="posterPreview">
+                                <i class="fas fa-image"></i>
+                                <span>Click to upload poster</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" onclick="closeAddEventModal()" class="cancel-btn">Cancel</button>
+                        <button type="submit" class="submit-btn">Create Event</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let calendar;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize FullCalendar
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek'
+                },
+                events: loadEvents,
+                eventClick: function(info) {
+                    showEventDetails(info.event);
+                },
+                eventDidMount: function(info) {
+                    if (info.event.extendedProps.poster) {
+                        info.el.style.backgroundImage = `url(${info.event.extendedProps.poster})`;
+                        info.el.style.backgroundSize = 'cover';
+                        info.el.style.height = '100px';
+                    }
+                }
+            });
+            
+            calendar.render();
+            checkAdminStatus();
+        });
+
+        // Load events from Supabase
+        async function loadEvents() {
+            try {
+                const { data: events, error } = await supabaseClient
+                    .from('events')
+                    .select('*');
+                
+                if (error) throw error;
+
+                return events.map(event => ({
+                    id: event.id,
+                    title: event.title,
+                    start: event.date,
+                    description: event.description,
+                    poster: event.poster_url,
+                    time: event.time
+                }));
+            } catch (error) {
+                console.error('Error loading events:', error);
+                return [];
+            }
+        }
+
+        // Check if user is admin
+        async function checkAdminStatus() {
+            try {
+                const { data: { user }, error } = await supabaseClient.auth.getUser();
+                if (error) throw error;
+
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profileError) throw profileError;
+
+                const addEventBtn = document.getElementById('addEventBtn');
+                if (profile.role !== 'admin') {
+                    addEventBtn.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+            }
+        }
+
+        // Preview poster image
+        function previewPoster(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('posterPreview');
+                    preview.style.backgroundImage = `url(${e.target.result})`;
+                    preview.innerHTML = '';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Handle event creation
+        async function handleAddEvent(e) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+            try {
+                const title = document.getElementById('eventTitle').value;
+                const date = document.getElementById('eventDate').value;
+                const time = document.getElementById('eventTime').value;
+                const description = document.getElementById('eventDescription').value;
+                const posterFile = document.getElementById('eventPoster').files[0];
+
+                let posterUrl = '';
+                if (posterFile) {
+                    const { data: uploadData, error: uploadError } = await supabaseClient
+                        .storage
+                        .from('event-posters')
+                        .upload(`${Date.now()}-${posterFile.name}`, posterFile);
+
+                    if (uploadError) throw uploadError;
+                    
+                    const { data: { publicUrl } } = supabaseClient
+                        .storage
+                        .from('event-posters')
+                        .getPublicUrl(uploadData.path);
+                        
+                    posterUrl = publicUrl;
+                }
+
+                const { data: event, error } = await supabaseClient
+                    .from('events')
+                    .insert([
+                        {
+                            title,
+                            date,
+                            time,
+                            description,
+                            poster_url: posterUrl
+                        }
+                    ])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                calendar.addEvent({
+                    id: event.id,
+                    title: event.title,
+                    start: event.date,
+                    description: event.description,
+                    poster: event.poster_url,
+                    time: event.time
+                });
+
+                closeAddEventModal();
+                showNotification('Event created successfully!', 'success');
+
+            } catch (error) {
+                console.error('Error creating event:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Create Event';
+            }
+        }
+
+        // Function to open the add event modal
+        function openAddEventModal() {
+            document.getElementById('addEventModal').style.display = 'block';
+        }
+
+        // Function to close the add event modal
+        function closeAddEventModal() {
+            document.getElementById('addEventModal').style.display = 'none';
+            document.getElementById('addEventForm').reset();
+            document.getElementById('posterPreview').innerHTML = `
+                <i class="fas fa-image"></i>
+                <span>Click to upload poster</span>
+            `;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addEventModal');
+            if (event.target === modal) {
+                closeAddEventModal();
+            }
+        }
+    </script>
+</body>
+</html>

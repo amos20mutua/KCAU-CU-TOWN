@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCA Christian Union - Fundraising Campaign</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="./css/landing.css">
+    <!-- Add Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase - Fixed initialization
+        const supabaseUrl = 'https://qmmwikoyptgkheztrwjn.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbXdpa295cHRna2hlenRyd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzODAyMTgsImV4cCI6MjA1Njk1NjIxOH0.-InUlGihCe9Z-pTSFdPr98UX6lTVIuQ2mVMrLDb9lY4';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
+    <style>
+        /* Base styles and variables */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --text-primary: #2c3e50;
+            --text-secondary: #666;
+            --background-light: #f8f9fa;
+            --border-color: #ddd;
+            --transition-speed: 0.2s;
+            --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --section-padding: 2rem;
+            --card-padding: 1rem;
+            --hero-gradient-1: #2c3e50;
+            --hero-gradient-2: #3498db;
+            --hero-gradient-3: #2980b9;
+            --hero-gradient-4: #34495e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Improved base font sizes and readability */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background-light);
+            line-height: 1.4;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        /* Responsive text sizing */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            :root {
+                --section-padding: 1.5rem;
+                --card-padding: 0.8rem;
+            }
+        }
+
+        /* Navigation Styles */
+        nav {
+            background: var(--text-primary);
+            padding: 0.8rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--box-shadow);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--card-padding);
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 0.5rem;
+            }
+            
+            .logo img {
+                height: 30px;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            padding-top: 60px;
+            min-height: 50vh;
+            width: 100%;
+            background: linear-gradient(
+                -45deg,
+                var(--hero-gradient-1),
+                var(--hero-gradient-2),
+                var(--hero-gradient-3),
+                var(--hero-gradient-4)
+            );
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: white;
+            text-align: center;
+            padding-bottom: var(--section-padding);
+            margin: 0;
+            position: relative;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: calc(var(--section-padding) * 2) var(--card-padding);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* Campaign Progress */
+        .campaign-progress {
+            background: white;
+            border-radius: 8px;
+            padding: var(--card-padding);
+            margin: 1rem auto;
+            max-width: 800px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .progress-stats {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+
+        .stat {
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .stat h3 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 0.2rem;
+        }
+
+        /* Buttons */
+        .cta-btn, .auth-btn, .donate-btn, .share-btn, .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            border-radius: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            min-height: 40px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .donate-btn {
+            background: var(--primary-color);
+            color: white;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .donate-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .donate-btn {
+                transition: opacity 0.2s ease;
+            }
+            
+            .donate-btn:hover {
+                transform: none;
+            }
+        }
+
+        /* Add styles for active state */
+        .donate-btn:active {
+            transform: translateY(1px);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .donate-btn {
+                transition: none;
+            }
+            
+            .donate-btn:hover,
+            .donate-btn:active {
+                transform: none;
+            }
+        }
+
+        /* Sections */
+        .section {
+            padding: var(--section-padding) var(--card-padding);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        /* Cards and Grids */
+        .donation-methods, .teams-grid, .sharers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .donation-card, .team-card, .sharer-card {
+            background: white;
+            padding: var(--card-padding);
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            transition: transform var(--transition-speed);
+        }
+
+        .donation-card:hover, .team-card:hover, .sharer-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Forms and Inputs */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Share Section */
+        .share-link {
+            background: white;
+            padding: var(--card-padding);
+            border-radius: 8px;
+            margin: 1rem 0;
+            box-shadow: var(--box-shadow);
+        }
+
+        .share-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .share-buttons {
+                flex-direction: column;
+            }
+            
+            .share-btn, .copy-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Badges */
+        .badges-showcase {
+            margin: 1.5rem 0;
+        }
+
+        .badge-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.8rem;
+            justify-items: center;
+        }
+
+        .badge {
+            text-align: center;
+            padding: var(--card-padding);
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            width: 100%;
+        }
+
+        .badge i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .badge-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Badges System */
+        .badges-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .badge-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .badge-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .badge-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .badge-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .badge-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .badge-card.gold .badge-icon {
+            color: #ffd700;
+        }
+
+        .badge-card.silver .badge-icon {
+            color: #c0c0c0;
+        }
+
+        .badge-card.bronze .badge-icon {
+            color: #cd7f32;
+        }
+
+        .badge-progress {
+            margin-top: 1rem;
+            height: 4px;
+            background: var(--background-light);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .badge-progress .fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: var(--section-padding) var(--card-padding);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                text-align: center;
+            }
+            
+            .social-links {
+                justify-content: center;
+            }
+        }
+
+        /* Modal */
+        .modal-content {
+            background: white;
+            padding: var(--card-padding);
+            border-radius: 8px;
+            width: 95%;
+            max-width: 400px;
+            margin: 1rem auto;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                padding: 1rem;
+                margin: 0.5rem auto;
+            }
+        }
+
+        /* Accessibility Improvements */
+        button, a {
+            min-height: 40px;
+            min-width: 40px;
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+            
+            .donation-card:hover, .team-card:hover, .sharer-card:hover,
+            .cta-btn:hover, .auth-btn:hover, .donate-btn:hover,
+            .share-btn:hover, .copy-btn:hover {
+                transform: none;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Error States */
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            padding: 0.8rem;
+            margin: 0.8rem 0;
+            background: #fff;
+            border-radius: 5px;
+            border: 1px solid #dc3545;
+        }
+
+        /* Success States */
+        .success-message {
+            color: var(--success-color);
+            text-align: center;
+            padding: 0.8rem;
+            margin: 0.8rem 0;
+            background: #fff;
+            border-radius: 5px;
+            border: 1px solid var(--success-color);
+        }
+
+        /* Team Progress Bar */
+        .team-progress-bar {
+            height: 6px;
+            margin: 0.5rem 0;
+        }
+
+        /* Add these styles to your existing CSS */
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .admin-btn {
+            background: var(--success-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .admin-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .admin-controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Progress Bar Styles */
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 8px;
+            height: 20px;
+            margin: 1rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar .fill {
+            background: var(--primary-color);
+            height: 100%;
+            transition: width 0.5s ease-in-out;
+            position: relative;
+        }
+
+        .progress-bar .label {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        /* Referral Link Styles */
+        .referral-section {
+            background: white;
+            border-radius: 8px;
+            padding: var(--card-padding);
+            margin: 1rem 0;
+            box-shadow: var(--box-shadow);
+        }
+
+        .referral-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--background-light);
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+
+        .referral-link input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Updated Layout Styles */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--section-padding);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: var(--card-padding);
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Add specific style for goal amount */
+        #goal-amount {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .stat-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Admin Controls */
+        .admin-controls {
+            display: none;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .admin-controls.visible {
+            display: block;
+        }
+
+        .admin-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+
+        .logout-btn {
+            background: var(--danger-color);
+        }
+
+        /* Auth Button Styles */
+        .auth-btn {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            font-weight: 500;
+            border: 2px solid var(--primary-color);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .auth-btn:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .auth-btn i {
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .auth-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Add these styles */
+        .badge.locked {
+            opacity: 0.5;
+            filter: grayscale(1);
+        }
+
+        .badge.locked .badge-desc::after {
+            content: " (Locked)";
+            color: #dc3545;
+        }
+
+        .badge i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge:not(.locked) i {
+            animation: shine 1.5s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .badge h4 {
+            margin: 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .badge-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <img src="./images/KCAU-LOGO.jpg" alt="KCA CU Logo">
+            </div>
+            <div class="nav-links">
+                <a href="login.html" class="auth-btn" id="joinUsBtn">
+                    <i class="fas fa-user-plus"></i> Join Us
+                </a>
+                <div class="admin-controls" style="display: none;">
+                    <a href="admin.html" class="admin-btn" id="adminDashboardBtn">
+                        <i class="fas fa-user-shield"></i> Admin Dashboard
+                    </a>
+                    <button class="auth-btn" id="logoutBtn" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>KCAU CU_TOWN Fundraiser</h1>
+                <p>Bringing Sound to the World__Because We Are Salt & Light</p>
+            </div>
+        </section>
+
+        <!-- Progress Section -->
+        <section class="progress-section">
+            <div class="campaign-progress">
+                <h2>Campaign Progress</h2>
+                <div class="progress-bar">
+                    <div class="fill" style="width: 0%">
+                        <span class="label">0%</span>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="total-raised">KSH 0</h3>
+                        <p>Total Raised</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="goal-amount">KSH 200,000</h3>
+                        <p>Campaign Goal</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="total-donors">0</h3>
+                        <p>Total Donors</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add this after the Progress Section -->
+        <section class="section">
+            <div class="container">
+                <h2>Achievement Badges</h2>
+                <div class="badges-showcase">
+                    <div class="badge-info">
+                        <div class="badge locked">
+                            <i class="fas fa-star"></i>
+                            <h4>Starter</h4>
+                            <p class="badge-desc">Share 5 times</p>
+                        </div>
+                        <div class="badge locked">
+                            <i class="fas fa-medal"></i>
+                            <h4>Champion</h4>
+                            <p class="badge-desc">Share 15 times</p>
+                        </div>
+                        <div class="badge locked">
+                            <i class="fas fa-crown"></i>
+                            <h4>Legend</h4>
+                            <p class="badge-desc">Share 30 times</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <h2>Top Contributors</h2>
+                <div class="badges-container" id="topSharersContainer">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Controls -->
+        <div class="admin-controls">
+            <button class="admin-btn" onclick="window.location.href='admin.html'">
+                <i class="fas fa-dashboard"></i> Admin Dashboard
+            </button>
+            <button class="admin-btn logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <!-- Donation Section -->
+        <section class="section">
+            <div class="container">
+                <h2>Make a Donation</h2>
+                <div class="donation-methods">
+                    <div class="donation-card">
+                        <h3>M-Pesa</h3>
+                        <p>Paybill: 123456</p>
+                        <p>Account: Your Name</p>
+                        <button class="donate-btn" onclick="showDonationForm('mpesa')">
+                            <i class="fas fa-mobile-alt"></i> Donate via M-Pesa
+                        </button>
+                    </div>
+                    <div class="donation-card">
+                        <h3>Bank Transfer</h3>
+                        <p>Bank: Example Bank</p>
+                        <p>Account: 1234567890</p>
+                        <button class="donate-btn" onclick="showDonationForm('bank')">
+                            <i class="fas fa-university"></i> Donate via Bank
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Referral Section -->
+        <section class="section">
+            <div class="container">
+                <h2>Share & Earn</h2>
+                <div class="referral-section">
+                    <p>Share your unique referral link and help us reach our goal!</p>
+                    <div class="referral-link">
+                        <input type="text" readonly id="referral-link" placeholder="Login to get your referral link">
+                        <button class="copy-btn" onclick="copyReferralLink()">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="share-buttons">
+                        <button class="share-btn" onclick="shareOnWhatsApp()">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button class="share-btn" onclick="shareOnTwitter()">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </button>
+                        <button class="share-btn" onclick="shareOnFacebook()">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-envelope"></i> cu@kca.ac.ke</p>
+                    <p><i class="fas fa-phone"></i> +254 XXX XXX XXX</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="#campaign">Campaign</a>
+                    <a href="#donate">Donate</a>
+                    <a href="#leaderboard">Leaderboard</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize the page
+            await loadCampaignData();
+            await loadLeaderboard();
+            await loadTeams();
+            
+            // Add smooth scrolling to all anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Handle Join Us button click - Updated with error handling
+            document.getElementById('joinUsBtn').addEventListener('click', async function(e) {
+                e.preventDefault();
+                try {
+                    const user = await checkAuth();
+                    if (user) {
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                } catch (error) {
+                    console.error('Join Us button error:', error);
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Subscribe to real-time updates
+            supabase
+                .channel('public:contributions')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'contributions' },
+                    (payload) => {
+                        loadCampaignData();
+                        loadLeaderboard();
+                    }
+                )
+                .subscribe();
+
+            supabase
+                .channel('public:teams')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'teams' },
+                    (payload) => {
+                        loadTeams();
+                    }
+                )
+                .subscribe();
+
+            await generateReferralLink();
+            await loadUserBadges();
+            await loadTopSharers();
+
+            // Check admin status when page loads
+            await checkAdminStatus();
+
+            // Subscribe to auth state changes
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN') {
+                    checkAdminStatus();
+                } else if (event === 'SIGNED_OUT') {
+                    showRegularUserControls();
+                }
+            });
+        });
+
+        async function loadCampaignData() {
+            try {
+                // Get campaign goal from settings
+                const { data: settings, error: settingsError } = await supabase
+                    .from('campaign_settings')
+                    .select('goal_amount')
+                    .eq('id', 1)
+                    .single();
+
+                if (settingsError) throw settingsError;
+
+                const goalAmount = settings?.goal_amount || 200000; // Default to 200,000 if not set
+
+                // Get total contributions
+                const { data: contributions, error: contribError } = await supabase
+                    .from('contributions')
+                    .select('amount')
+                    .eq('status', 'approved');
+
+                if (contribError) throw contribError;
+
+                const totalAmount = contributions.reduce((sum, contrib) => sum + contrib.amount, 0);
+                const percentage = (totalAmount / goalAmount) * 100;
+
+                // Get unique contributors count
+                const { count: contributorCount, error: countError } = await supabase
+                    .from('contributions')
+                    .select('contributor_id', { count: 'exact', distinct: true })
+                    .eq('status', 'approved');
+
+                if (countError) throw countError;
+
+                // Update UI
+                document.getElementById('total-raised').textContent = `KSH ${totalAmount.toLocaleString()}`;
+                document.getElementById('goal-amount').textContent = `KSH ${goalAmount.toLocaleString()}`;
+                document.getElementById('total-donors').textContent = contributorCount;
+                
+                const progressBar = document.querySelector('.progress-bar .fill');
+                progressBar.style.transition = 'width 0.5s ease-in-out';
+                progressBar.style.width = `${percentage}%`;
+                document.querySelector('.progress-bar .label').textContent = `${Math.round(percentage)}%`;
+
+                // Subscribe to campaign settings changes
+                supabase
+                    .channel('campaign_settings')
+                    .on('postgres_changes', 
+                        { event: '*', schema: 'public', table: 'campaign_settings' },
+                        () => loadCampaignData()
+                    )
+                    .subscribe();
+            } catch (error) {
+                console.error('Error loading campaign data:', error);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const { data: topContributors, error } = await supabase
+                    .from('contributions')
+                    .select(`
+                        amount,
+                        users (
+                            full_name,
+                            avatar_url
+                        )
+                    `)
+                    .order('amount', { ascending: false })
+                    .limit(5);
+
+                if (error) throw error;
+
+                const leaderboardHTML = topContributors.map((contributor, index) => `
+                    <div class="leader-card ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">
+                        <div class="rank">
+                            <i class="fas ${index === 0 ? 'fa-trophy' : 'fa-medal'}"></i>
+                        </div>
+                        <h3>${contributor.users.full_name}</h3>
+                        <p>Ksh ${contributor.amount.toLocaleString()}</p>
+                        <div class="badges">
+                            ${index === 0 ? '<i class="fas fa-star" title="Top Contributor"></i>' : ''}
+                            <i class="fas fa-heart" title="Community Champion"></i>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('leaderboardContainer').innerHTML = leaderboardHTML;
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+            }
+        }
+
+        async function loadTeams() {
+            try {
+                const { data: teams, error } = await supabase
+                    .from('teams')
+                    .select(`
+                        *,
+                        team_members!inner (
+                            id,
+                            user_id
+                        ),
+                        contributions (
+                            amount
+                        )
+                    `);
+
+                if (error) {
+                    console.error('Error loading teams:', error);
+                    throw error;
+                }
+
+                if (!teams || teams.length === 0) {
+                    document.getElementById('teamsContainer').innerHTML = `
+                        <div class="no-teams-message">
+                            <p>No teams have been created yet. Be the first to create one!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const teamsHTML = teams.map(team => {
+                    const totalRaised = team.contributions 
+                        ? team.contributions.reduce((sum, contrib) => sum + (contrib.amount || 0), 0)
+                        : 0;
+                    const memberCount = team.team_members ? team.team_members.length : 0;
+                    const percentage = team.goal ? (totalRaised / team.goal) * 100 : 0;
+
+                    return `
+                        <div class="team-card">
+                            <h3>${team.name}</h3>
+                            <p class="team-description">${team.description}</p>
+                            <div class="team-stats">
+                                <p>Goal: Ksh ${team.goal.toLocaleString()}</p>
+                                <p>Raised: Ksh ${totalRaised.toLocaleString()}</p>
+                                <div class="team-progress-bar">
+                                    <div class="team-progress" style="width: ${Math.min(percentage, 100)}%"></div>
+                                </div>
+                                <p>${Math.round(percentage)}% of goal</p>
+                            </div>
+                            <p class="member-count">${memberCount} member${memberCount !== 1 ? 's' : ''}</p>
+                            <button class="join-team-btn" onclick="joinTeam(${team.id})">Join Team</button>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('teamsContainer').innerHTML = teamsHTML;
+
+                // Add styles for the team cards if they don't exist
+                if (!document.querySelector('#team-styles')) {
+                    const styles = document.createElement('style');
+                    styles.id = 'team-styles';
+                    styles.textContent = `
+                        .team-card {
+                            background: white;
+                            padding: 1.5rem;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            margin-bottom: 1.5rem;
+                            transition: transform 0.3s ease;
+                        }
+                        
+                        .team-card:hover {
+                            transform: translateY(-5px);
+                        }
+
+                        .team-description {
+                            color: #666;
+                            margin: 1rem 0;
+                        }
+
+                        .team-stats {
+                            margin: 1rem 0;
+                        }
+
+                        .team-progress-bar {
+                            height: 6px;
+                            background: #e9ecef;
+                            border-radius: 4px;
+                            margin: 0.5rem 0;
+                            overflow: hidden;
+                        }
+
+                        .team-progress {
+                            height: 100%;
+                            background: var(--primary-color);
+                            transition: width 0.3s ease;
+                        }
+
+                        .member-count {
+                            color: #666;
+                            font-size: 0.9rem;
+                            margin-bottom: 1rem;
+                        }
+
+                        .no-teams-message {
+                            text-align: center;
+                            padding: 2rem;
+                            color: #666;
+                        }
+                    `;
+                    document.head.appendChild(styles);
+                }
+            } catch (error) {
+                console.error('Error loading teams:', error);
+                document.getElementById('teamsContainer').innerHTML = `
+                    <div class="error-message">
+                        <p>Failed to load teams. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function joinTeam(teamId) {
+            const user = await checkAuth();
+            if (!user) {
+                alert('Please log in to join a team');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                // Check if already a member
+                const { data: existingMember, error: checkError } = await supabase
+                    .from('team_members')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('team_id', teamId)
+                    .single();
+
+                if (existingMember) {
+                    alert('You are already a member of this team!');
+                    return;
+                }
+
+                const { data, error } = await supabase
+                    .from('team_members')
+                    .insert([{
+                        team_id: teamId,
+                        user_id: user.id
+                    }]);
+
+                if (error) throw error;
+
+                alert('Successfully joined the team!');
+                document.getElementById('teamModal').style.display = 'none';
+                loadTeams();
+            } catch (error) {
+                console.error('Error joining team:', error);
+                alert('Failed to join team. Please try again.');
+            }
+        }
+
+        // Authentication handling - Updated with error handling and logging
+        async function checkAuth() {
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+                if (error) {
+                    console.error('Auth error:', error);
+                    return null;
+                }
+                return user;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                return null;
+            }
+        }
+
+        // Team Management
+        function handleTeamAction(action) {
+            const modal = document.getElementById('teamModal');
+            const createForm = document.getElementById('createTeamForm');
+            const joinForm = document.getElementById('joinTeamForm');
+
+            modal.style.display = 'block';
+            
+            if (action === 'create') {
+                createForm.style.display = 'block';
+                joinForm.style.display = 'none';
+            } else {
+                createForm.style.display = 'none';
+                joinForm.style.display = 'block';
+                loadAvailableTeams();
+            }
+        }
+
+        async function createTeam(event) {
+            event.preventDefault();
+            
+            try {
+                const user = await checkAuth();
+                if (!user) {
+                    alert('Please log in to create a team');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const name = document.getElementById('teamName').value.trim();
+                const goal = document.getElementById('teamGoal').value;
+                const description = document.getElementById('teamDescription').value.trim();
+
+                if (!name || !goal || !description) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                // Create the team with the correct schema
+                const { data: teamData, error: teamError } = await supabase
+                    .from('teams')
+                    .insert([{
+                        name: name,
+                        goal: parseFloat(goal),
+                        description: description,
+                        creator_id: user.id,
+                        created_at: new Date().toISOString()
+                    }])
+                    .select()
+                    .single();
+
+                if (teamError) {
+                    console.error('Team creation error:', teamError);
+                    throw new Error(teamError.message);
+                }
+
+                // Add the creator as a team member
+                const { error: memberError } = await supabase
+                    .from('team_members')
+                    .insert([{
+                        team_id: teamData.id,
+                        user_id: user.id,
+                        joined_at: new Date().toISOString(),
+                        is_admin: true
+                    }]);
+
+                if (memberError) {
+                    console.error('Team member creation error:', memberError);
+                    alert('Team created but failed to add you as a member. Please try joining manually.');
+                }
+
+                alert('Team created successfully!');
+                document.getElementById('teamModal').style.display = 'none';
+                document.getElementById('teamName').value = '';
+                document.getElementById('teamGoal').value = '';
+                document.getElementById('teamDescription').value = '';
+                await loadTeams();
+            } catch (error) {
+                console.error('Error creating team:', error);
+                alert('Failed to create team: ' + (error.message || 'Please try again'));
+            }
+        }
+
+        async function loadAvailableTeams() {
+            try {
+                const { data: teams, error } = await supabase
+                    .from('teams')
+                    .select('*');
+
+                if (error) throw error;
+
+                const teamsHTML = teams.map(team => `
+                    <div class="available-team" onclick="joinTeam(${team.id})">
+                        <h3>${team.name}</h3>
+                        <p>${team.description}</p>
+                        <p>Goal: Ksh ${team.goal.toLocaleString()}</p>
+                    </div>
+                `).join('');
+
+                document.getElementById('availableTeams').innerHTML = teamsHTML;
+            } catch (error) {
+                console.error('Error loading available teams:', error);
+            }
+        }
+
+        // Close modal when clicking outside or on close button
+        window.onclick = function(event) {
+            const modal = document.getElementById('teamModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('teamModal').style.display = 'none';
+        }
+
+        // M-Pesa Integration - Updated with better error handling and validation
+        async function initiateMpesa() {
+            try {
+                const user = await checkAuth();
+                if (!user) {
+                    alert('Please log in to make a contribution');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const amount = prompt('Enter amount to donate (Ksh):', '1000');
+                if (!amount || isNaN(amount) || parseFloat(amount) < 1) {
+                    alert('Please enter a valid amount');
+                    return;
+                }
+
+                const phone = prompt('Enter your M-Pesa phone number:', '254');
+                if (!phone || phone.length < 9) {
+                    alert('Please enter a valid phone number');
+                    return;
+                }
+
+                // Record the pending contribution in Supabase
+                const { data, error } = await supabase
+                    .from('contributions')
+                    .insert([{
+                        user_id: user.id,
+                        amount: parseFloat(amount),
+                        payment_method: 'mpesa',
+                        status: 'pending',
+                        phone_number: phone,
+                        created_at: new Date().toISOString()
+                    }]);
+
+                if (error) throw error;
+
+                alert('Your contribution has been recorded. Please complete the M-Pesa payment using:\n\nPaybill: 123456\nAccount: KCA CU');
+                
+                // Refresh the campaign data
+                await loadCampaignData();
+            } catch (error) {
+                console.error('M-Pesa payment error:', error);
+                alert('Failed to record contribution: ' + error.message);
+            }
+        }
+
+        function showDonationForm(method) {
+            if (method === 'mpesa') {
+                initiateMpesa();
+            } else if (method === 'bank') {
+                alert('Bank transfer details:\n\nBank: Example Bank\nAccount: 1234567890\nAccount Name: KCA Christian Union');
+            }
+        }
+
+        async function initiatePaypal() {
+            try {
+                const amount = prompt('Enter amount to donate (USD):', '10');
+                
+                if (amount) {
+                    const { data, error } = await supabase.functions.invoke('initiate-paypal', {
+                        body: { amount: parseFloat(amount) }
+                    });
+
+                    if (error) throw error;
+                    window.location.href = data.checkoutUrl;
+                }
+            } catch (error) {
+                console.error('PayPal payment error:', error);
+                alert('Failed to initiate PayPal payment. Please try again.');
+            }
+        }
+
+        // Share functionality
+        async function generateReferralLink() {
+            const user = await checkAuth();
+            if (user) {
+                const referralLink = `${window.location.origin}${window.location.pathname}?ref=${user.id}`;
+                document.getElementById('referral-link').value = referralLink;
+            } else {
+                document.getElementById('referral-link').value = 'Please log in to get your referral link';
+            }
+        }
+
+        async function copyReferralLink() {
+            const user = await checkAuth();
+            if (!user) {
+                alert('Please log in to share');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const linkInput = document.getElementById('referral-link');
+            linkInput.select();
+            document.execCommand('copy');
+
+            // Record the share action
+            await recordShare('copy');
+            alert('Link copied to clipboard!');
+        }
+
+        async function shareOnWhatsApp() {
+            const user = await checkAuth();
+            if (!user) {
+                alert('Please log in to share');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const referralLink = document.getElementById('referral-link').value;
+            const message = encodeURIComponent(`Support KCA Christian Union Fundraiser! ${referralLink}`);
+            window.open(`https://wa.me/?text=${message}`, '_blank');
+            await recordShare('whatsapp');
+        }
+
+        async function shareOnTwitter() {
+            const user = await checkAuth();
+            if (!user) {
+                alert('Please log in to share');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const referralLink = document.getElementById('referral-link').value;
+            const message = encodeURIComponent(`Support KCA Christian Union Fundraiser! ${referralLink}`);
+            window.open(`https://twitter.com/intent/tweet?text=${message}`, '_blank');
+            await recordShare('twitter');
+        }
+
+        async function shareOnFacebook() {
+            const user = await checkAuth();
+            if (!user) {
+                alert('Please log in to share');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const referralLink = document.getElementById('referral-link').value;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`, '_blank');
+            await recordShare('facebook');
+        }
+
+        async function recordShare(platform) {
+            try {
+                const user = await checkAuth();
+                if (!user) return;
+
+                const { data, error } = await supabase
+                    .from('shares')
+                    .insert([{
+                        user_id: user.id,
+                        platform: platform,
+                        shared_at: new Date().toISOString()
+                    }]);
+
+                if (error) throw error;
+
+                // Update badges and top sharers display
+                await loadUserBadges();
+                await loadTopSharers();
+            } catch (error) {
+                console.error('Error recording share:', error);
+            }
+        }
+
+        async function loadUserBadges() {
+            try {
+                const user = await checkAuth();
+                if (!user) return;
+
+                // Get user's share count
+                const { data: shares, error } = await supabase
+                    .from('shares')
+                    .select('id')
+                    .eq('user_id', user.id);
+
+                if (error) throw error;
+
+                const shareCount = shares.length;
+
+                // Update badge display based on share count
+                const badges = document.querySelectorAll('.badge');
+                if (shareCount >= 30) {
+                    badges[2].classList.remove('locked');
+                    badges[1].classList.remove('locked');
+                    badges[0].classList.remove('locked');
+                } else if (shareCount >= 15) {
+                    badges[2].classList.add('locked');
+                    badges[1].classList.remove('locked');
+                    badges[0].classList.remove('locked');
+                } else if (shareCount >= 5) {
+                    badges[2].classList.add('locked');
+                    badges[1].classList.add('locked');
+                    badges[0].classList.remove('locked');
+                } else {
+                    badges[2].classList.add('locked');
+                    badges[1].classList.add('locked');
+                    badges[0].classList.add('locked');
+                }
+            } catch (error) {
+                console.error('Error loading user badges:', error);
+            }
+        }
+
+        async function loadTopSharers() {
+            try {
+                const { data: shares, error } = await supabase
+                    .from('shares')
+                    .select(`
+                        user_id,
+                        users (
+                            full_name,
+                            avatar_url
+                        )
+                    `)
+                    .order('count', { ascending: false });
+
+                if (error) throw error;
+
+                // Group shares by user and count them
+                const userShares = shares.reduce((acc, share) => {
+                    if (!acc[share.user_id]) {
+                        acc[share.user_id] = {
+                            name: share.users.full_name,
+                            avatar: share.users.avatar_url,
+                            count: 0
+                        };
+                    }
+                    acc[share.user_id].count++;
+                    return acc;
+                }, {});
+
+                // Convert to array and sort by share count
+                const sortedSharers = Object.entries(userShares)
+                    .map(([id, data]) => ({
+                        id,
+                        ...data
+                    }))
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 3);
+
+                // Generate HTML for top sharers with badges
+                const sharersHTML = sortedSharers.map((sharer, index) => {
+                    const badgeType = index === 0 ? 'gold' : index === 1 ? 'silver' : 'bronze';
+                    const badgeIcon = index === 0 ? 'crown' : index === 1 ? 'medal' : 'award';
+                    const badgeTitle = index === 0 ? 'Top Sharer' : index === 1 ? 'Silver Sharer' : 'Bronze Sharer';
+                    
+                    return `
+                        <div class="badge-card ${badgeType}">
+                            <i class="fas fa-${badgeIcon} badge-icon"></i>
+                            <h3 class="badge-title">${badgeTitle}</h3>
+                            <p>${sharer.name}</p>
+                            <p class="badge-description">${sharer.count} shares</p>
+                            <div class="badge-progress">
+                                <div class="fill" style="width: ${(sharer.count / sortedSharers[0].count) * 100}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('topSharersContainer').innerHTML = sharersHTML;
+
+                // Subscribe to real-time updates for shares
+                supabase
+                    .channel('shares')
+                    .on('postgres_changes', 
+                        { event: '*', schema: 'public', table: 'shares' },
+                        () => loadTopSharers()
+                    )
+                    .subscribe();
+
+            } catch (error) {
+                console.error('Error loading top sharers:', error);
+            }
+        }
+
+        // Check if user is admin
+        async function checkAdminStatus() {
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+                if (error || !user) {
+                    showRegularUserControls();
+                    return;
+                }
+
+                // Check if user is admin
+                const { data: adminData, error: adminError } = await supabase
+                    .from('admins')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (adminError || !adminData) {
+                    showRegularUserControls();
+                    return;
+                }
+
+                // Show admin controls if user is admin
+                showAdminControls();
+            } catch (error) {
+                console.error('Admin check failed:', error);
+                showRegularUserControls();
+            }
+        }
+
+        function showAdminControls() {
+            document.getElementById('joinUsBtn').style.display = 'none';
+            document.querySelector('.admin-controls').style.display = 'flex';
+        }
+
+        function showRegularUserControls() {
+            document.getElementById('joinUsBtn').style.display = 'block';
+            document.querySelector('.admin-controls').style.display = 'none';
+        }
+
+        async function handleLogout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                
+                // Show regular user controls after logout
+                showRegularUserControls();
+                
+                // Redirect to home page
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Failed to logout. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>
