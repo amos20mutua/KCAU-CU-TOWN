@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCA Christian Union - Messages</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/messages.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar remains the same -->
+        
+        <main class="main-content">
+            <div class="messages-container">
+                <div class="messages-sidebar">
+                    <div class="messages-header">
+                        <h3>Messages</h3>
+                        <button class="btn-new-message">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                    </div>
+                    <div class="messages-list">
+                        <!-- Messages will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="message-content">
+                    <div class="message-thread">
+                        <!-- Selected message thread will be shown here -->
+                    </div>
+                    <div class="message-reply">
+                        <textarea placeholder="Type your reply..."></textarea>
+                        <button class="btn-send">Send</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Add to your HTML files (e.g., index.html, dashboard.html, etc.) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Initialize Supabase client
+  const supabaseUrl = 'YOUR_SUPABASE_PROJECT_URL'
+  const supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY'
+  const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey)
+</script>
+</body>
+</html> 

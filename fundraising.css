@@ -1,0 +1,43 @@
+.fundraising-content {
+    padding: 20px;
+}
+
+.campaign-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.progress-container {
+    margin: 15px 0;
+}
+
+.progress-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.progress-bar {
+    background: #eee;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress {
+    background: var(--kca-blue);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.btn-contribute {
+    background: var(--kca-gold);
+    color: var(--kca-blue);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+} 

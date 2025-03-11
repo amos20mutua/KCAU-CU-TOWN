@@ -1,0 +1,48 @@
+.messages-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: calc(100vh - 60px);
+}
+
+.messages-sidebar {
+    border-right: 1px solid #eee;
+    background: white;
+}
+
+.messages-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.message-thread {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.message-reply {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+}
+
+.message-reply textarea {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: none;
+}
+
+.btn-send {
+    background: var(--kca-blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+} 
