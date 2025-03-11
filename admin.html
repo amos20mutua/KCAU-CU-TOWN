@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Base styles and variables */
         :root {
             --primary-color: #007bff;
             --secondary-color: #6c757d;
@@ -18,6 +19,8 @@
             --dark-color: #343a40;
             --light-color: #f8f9fa;
             --border-color: #dee2e6;
+            --card-padding: 1.5rem;
+            --border-radius: 8px;
         }
 
         * {
@@ -33,20 +36,20 @@
             line-height: 1.4;
         }
 
-        /* Admin Layout */
+        /* Admin Layout - Improved spacing */
         .admin-container {
             display: grid;
-            grid-template-columns: 250px 1fr;
+            grid-template-columns: 280px 1fr;
             min-height: 100vh;
         }
 
-        /* Sidebar */
+        /* Sidebar - Better visibility */
         .sidebar {
             background: var(--dark-color);
             color: white;
-            padding: 1rem;
+            padding: 1.5rem;
             position: fixed;
-            width: 250px;
+            width: 280px;
             height: 100vh;
             overflow-y: auto;
         }
@@ -78,70 +81,90 @@
             width: 20px;
         }
 
-        /* Main Content */
+        /* Main Content - Consistent spacing */
         .main-content {
             padding: 2rem;
-            margin-left: 250px;
+            margin-left: 280px;
+            max-width: 1600px;
         }
 
-        /* Dashboard Cards */
+        /* Dashboard Cards - Better sizing */
         .dashboard-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .stat-card {
             background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
+            padding: var(--card-padding);
+            border-radius: var(--border-radius);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .stat-card h3 {
             color: var(--dark-color);
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
         }
 
         .stat-card .value {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             color: var(--primary-color);
+            margin-bottom: 0.5rem;
         }
 
         /* Charts Container */
         .charts-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .chart-card {
             background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 400px;
         }
 
-        /* Tables */
+        .chart-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        /* Tables - Improved readability */
         .table-container {
             background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
+            padding: var(--card-padding);
+            border-radius: var(--border-radius);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
             overflow-x: auto;
+            width: 100%;
+        }
+
+        .table-container h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            padding-left: 0.5rem;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 800px;
         }
 
         th, td {
-            padding: 1rem;
+            padding: 1rem 1.5rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
         }
@@ -149,28 +172,54 @@
         th {
             background: var(--light-color);
             font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        tr:hover {
+        td {
+            background: white;
+        }
+
+        /* Alternating row colors */
+        tr:nth-child(even) td {
             background: #f8f9fa;
         }
 
-        /* Action Buttons */
-        .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: opacity 0.3s;
+        /* Hover effect on rows */
+        tr:hover td {
+            background: #f0f4f8;
         }
 
-        .btn:hover {
-            opacity: 0.9;
+        /* Button Styles - Consistent and clean */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            min-height: 38px;
+            min-width: 38px;
+            font-size: 0.95rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            min-height: 32px;
+            min-width: 32px;
+            font-size: 0.875rem;
         }
 
         .btn-primary {
             background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-color);
             color: white;
         }
 
@@ -184,40 +233,165 @@
             color: black;
         }
 
-        /* Search and Filter */
-        .filters {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
+        /* Status Badges - Clear visibility */
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+            min-width: 100px;
+            text-align: center;
         }
 
-        .search-input {
-            padding: 0.5rem;
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .status-badge.approved {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-badge.rejected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Forms and Inputs - Consistent styling */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            width: 300px;
+            font-size: 1rem;
         }
 
-        /* Responsive Design */
+        /* Mobile Responsiveness */
+        @media (max-width: 1200px) {
+            .dashboard-stats {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
         @media (max-width: 768px) {
             .admin-container {
                 grid-template-columns: 1fr;
             }
 
-            .sidebar {
-                display: none;
-            }
-
             .main-content {
                 margin-left: 0;
+                padding: 1rem;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-width: 300px;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
             }
 
             .dashboard-stats {
                 grid-template-columns: 1fr;
             }
 
-            .charts-container {
-                grid-template-columns: 1fr;
+            .stat-card,
+            .chart-card,
+            .table-container {
+                padding: 1rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+
+            .btn-sm {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Toast Messages - Clear visibility */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            color: white;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: var(--danger-color);
+        }
+
+        /* Settings Form - Better structure */
+        .settings-form {
+            background: white;
+            padding: var(--card-padding);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Hamburger Menu - Clear visibility */
+        .hamburger {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1001;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            display: none;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .overlay.active {
+                display: block;
             }
         }
 
@@ -379,9 +553,166 @@
             border-radius: 4px;
             font-size: 1rem;
         }
+
+        /* Campaign Settings Form */
+        .settings-form {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2.5rem;
+            max-width: 800px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+            outline: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 4px;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: var(--danger-color);
+        }
+
+        /* Section Headers */
+        .section-content h1, .section-content h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--dark-color);
+        }
+
+        /* Add these styles for the hamburger menu */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1001;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .admin-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                transition: left 0.3s ease;
+                z-index: 1000;
+                background: var(--dark-color);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: 4rem;
+            }
+        }
+
+        /* Add overlay for mobile menu */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Add these styles to your CSS */
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .logo img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .logo img {
+                height: 40px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Add hamburger button -->
+    <button class="hamburger" id="hamburger">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Add overlay -->
+    <div class="overlay" id="overlay"></div>
+
     <div class="admin-container">
         <!-- Sidebar -->
         <div class="sidebar">
@@ -404,7 +735,7 @@
                 <i class="fas fa-chart-bar"></i> Reports
             </div>
             <div class="nav-item" onclick="showSection('settings')">
-                <i class="fas fa-cog"></i> Settings
+                <i class="fas fa-cog"></i> Campaign Settings
             </div>
             <div class="nav-item" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> Logout
@@ -413,6 +744,11 @@
 
         <!-- Main Content -->
         <div class="main-content">
+            <!-- Update the logo HTML -->
+            <div class="logo">
+                <img src="KCAU-LOGO.jpg" alt="KCA CU Logo">
+            </div>
+
             <!-- Dashboard Section -->
             <div id="dashboard-section" class="section-content">
                 <h1>Dashboard Overview</h1>
@@ -552,40 +888,42 @@
 
             <!-- Settings Section -->
             <div id="settings-section" class="section-content" style="display: none;">
-                <h1>Settings</h1>
-                <div class="settings-container">
-                    <div class="settings-card">
-                        <h3>Campaign Goal</h3>
-                        <div class="form-group">
-                            <label for="campaignGoal">Set Campaign Goal (KSH)</label>
-                            <div class="input-group">
-                                <input type="number" id="campaignGoal" class="form-control" min="1000" step="1000">
-                                <button class="btn btn-primary" onclick="updateCampaignGoal()">
-                                    <i class="fas fa-save"></i> Save
-                                </button>
-                            </div>
-                        </div>
+                <h2>Campaign Settings</h2>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label for="targetAmount">Target Amount (KES)</label>
+                        <input type="number" id="targetAmount" placeholder="Enter target amount">
                     </div>
+                    <div class="form-group">
+                        <label for="campaignEndDate">Campaign End Date</label>
+                        <input type="date" id="campaignEndDate">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateCampaignSettings()">Save Settings</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="toast" class="toast"></div>
+
     <script>
-        // Initialize Supabase
+        // Initialize Supabase with session handling
         const supabaseUrl = 'https://qmmwikoyptgkheztrwjn.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbXdpa295cHRna2hlenRyd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzODAyMTgsImV4cCI6MjA1Njk1NjIxOH0.-InUlGihCe9Z-pTSFdPr98UX6lTVIuQ2mVMrLDb9lY4';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-        // Global variables for charts
-        let donationsChart = null;
-        let teamsChart = null;
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
+            auth: {
+                storage: window.localStorage,
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true
+            }
+        });
 
         // Check admin authentication
         async function checkAdminAuth() {
             try {
-                const { data: { user }, error } = await supabase.auth.getUser();
-                if (error || !user) {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error || !session) {
                     window.location.href = 'login.html';
                     return false;
                 }
@@ -594,11 +932,14 @@
                 const { data: adminData, error: adminError } = await supabase
                     .from('admins')
                     .select('*')
-                    .eq('user_id', user.id)
+                    .eq('user_id', session.user.id)
                     .single();
 
                 if (adminError || !adminData) {
                     showError('Access denied. Admin privileges required.');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 2000);
                     return false;
                 }
                 
@@ -609,6 +950,46 @@
                 return false;
             }
         }
+
+        // Enhanced logout function
+        async function logout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                
+                // Clear any local storage data
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Show success message
+                showSuccess('Successfully logged out');
+                
+                // Redirect to login page after a short delay
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+            } catch (error) {
+                console.error('Logout error:', error);
+                showError('Failed to logout. Please try again.');
+            }
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const isAuthenticated = await checkAdminAuth();
+                if (isAuthenticated) {
+                    await loadDashboardData();
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showError('Failed to initialize the page. Please refresh.');
+            }
+        });
+
+        // Global variables for charts
+        let donationsChart = null;
+        let teamsChart = null;
 
         // Load dashboard data with error handling
         async function loadDashboardData() {
@@ -852,6 +1233,9 @@
                     case 'users':
                         await loadUsersData();
                         break;
+                    case 'settings':
+                        await loadCampaignSettings();
+                        break;
                     // Add other cases as needed
                 }
             } catch (error) {
@@ -880,19 +1264,6 @@
                 errorDiv.remove();
             }, 5000);
         }
-
-        // Initialize page with error handling
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                const isAuthenticated = await checkAdminAuth();
-                if (isAuthenticated) {
-                    await loadDashboardData();
-                }
-            } catch (error) {
-                console.error('Initialization error:', error);
-                showError('Failed to initialize the page. Please refresh.');
-            }
-        });
 
         // Load recent donations
         async function loadRecentDonations() {
@@ -1178,44 +1549,92 @@
             }, 3000);
         }
 
-        // Logout function
-        async function logout() {
+        // Function to load current campaign settings
+        async function loadCampaignSettings() {
             try {
-                const { error } = await supabase.auth.signOut();
+                const { data, error } = await supabase
+                    .from('campaign_settings')
+                    .select('*')
+                    .single();
+
                 if (error) throw error;
-                window.location.href = 'login.html';
+
+                if (data) {
+                    document.getElementById('targetAmount').value = data.target_amount || '';
+                    document.getElementById('campaignEndDate').value = data.end_date || '';
+                }
             } catch (error) {
-                console.error('Logout error:', error);
-                showError('Failed to logout. Please try again.');
+                console.error('Error loading settings:', error);
+                showToast('Failed to load campaign settings', 'error');
             }
         }
 
-        // Add this JavaScript function
-        async function updateCampaignGoal() {
+        // Function to update campaign settings
+        async function updateCampaignSettings() {
             try {
-                const goalAmount = parseFloat(document.getElementById('campaignGoal').value);
-                if (isNaN(goalAmount) || goalAmount < 1000) {
-                    showError('Please enter a valid amount (minimum 1000 KSH)');
+                const targetAmount = document.getElementById('targetAmount').value;
+                const endDate = document.getElementById('campaignEndDate').value;
+
+                if (!targetAmount || !endDate) {
+                    showToast('Please fill in all fields', 'error');
                     return;
                 }
 
                 const { data, error } = await supabase
                     .from('campaign_settings')
-                    .upsert({ 
-                        id: 1, // Using a single row for settings
-                        goal_amount: goalAmount,
-                        updated_at: new Date().toISOString()
-                    });
+                    .upsert([
+                        {
+                            id: 1, // Using a single row for settings
+                            target_amount: parseFloat(targetAmount),
+                            end_date: endDate,
+                            updated_at: new Date().toISOString()
+                        }
+                    ]);
 
                 if (error) throw error;
 
-                showSuccess('Campaign goal updated successfully');
-                loadDashboardData(); // Refresh dashboard data
+                showToast('Campaign settings updated successfully');
             } catch (error) {
-                console.error('Error updating campaign goal:', error);
-                showError('Failed to update campaign goal');
+                console.error('Error updating settings:', error);
+                showToast('Failed to update campaign settings', 'error');
             }
         }
+
+        // Function to show toast messages
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Add this at the beginning of your script section
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.getElementById('hamburger');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('overlay');
+
+            function toggleMenu() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                hamburger.innerHTML = sidebar.classList.contains('active') ? 
+                    '<i class="fas fa-times"></i>' : 
+                    '<i class="fas fa-bars"></i>';
+            }
+
+            hamburger.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+
+            // Close menu when clicking a nav item on mobile
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        toggleMenu();
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html> 
