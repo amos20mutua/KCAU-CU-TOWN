@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams - KCA Christian Union</title>
+    
+    <!-- Add Supabase script first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Initialize Supabase immediately -->
+    <script>
+        // Initialize Supabase - Replace with your actual credentials
+        const supabaseUrl = 'https://qmmwikoyptgkheztrwjn.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbXdpa295cHRna2hlenRyd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzODAyMTgsImV4cCI6MjA1Njk1NjIxOH0.-InUlGihCe9Z-pTSFdPr98UX6lTVIuQ2mVMrLDb9lY4';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Check if Supabase is initialized correctly
+        console.log('Supabase initialized:', !!supabaseClient);
+
+        // Check if user is authenticated
+        async function checkUser() {
+            const { data: { user }, error } = await supabaseClient.auth.getUser();
+            if (error || !user) {
+                window.location.href = 'index.html'; // Redirect to login if not authenticated
+            }
+        }
+
+        // Run auth check
+        checkUser();
+
+        // Initialize Supabase client with real-time subscription
+        const supabase = supabaseClient;
+
+        // Real-time subscription for teams
+        supabase
+            .channel('public:teams')
+            .on('postgres_changes', 
+                { event: '*', schema: 'public', table: 'teams' },
+                (payload) => {
+                    loadTeams(); // Reload teams when changes occur
+                }
+            )
+            .subscribe();
+
+        // Real-time subscription for team members
+        supabase
+            .channel('public:team_members')
+            .on('postgres_changes',
+                { event: '*', schema: 'public', table: 'team_members' },
+                (payload) => {
+                    loadTeams(); // Reload teams when membership changes
+                }
+            )
+            .subscribe();
+    </script>
+
+    <!-- Other head elements -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --background-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-light: #1a1a1a;
+                --card-bg-light: #2c2c2c;
+                --text-dark: #ffffff;
+                --border-color: #404040;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Refined Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: white;
+            position: fixed;
+            height: 100vh;
+            box-shadow: var(--card-shadow);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 15px;
+            margin: 0;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav-links li {
+            width: 100%;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-links i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 24px;
+            width: calc(100% - 250px);
+            max-width: 1400px;
+            margin-right: auto;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: 0;
+            }
+
+            .sidebar-logo {
+                padding: 15px 0;
+                justify-content: center;
+            }
+
+            .sidebar-logo span {
+                display: none;
+            }
+
+            .nav-links {
+                padding: 10px 5px;
+            }
+
+            .nav-links span {
+                display: none;
+            }
+
+            .nav-links a {
+                padding: 12px;
+                justify-content: center;
+            }
+
+            .nav-links i {
+                margin: 0;
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                margin-left: 60px;
+                width: calc(100% - 60px);
+                padding: 16px;
+            }
+
+            /* Mobile Menu Button */
+            .mobile-menu-btn {
+                display: flex;
+                position: fixed;
+                top: 12px;
+                right: 12px;
+                z-index: 101;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                width: 40px;
+                height: 40px;
+                cursor: pointer;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                transition: all 0.2s ease;
+            }
+
+            .mobile-menu-btn:hover {
+                background: var(--secondary-color);
+            }
+
+            .mobile-menu-btn:active {
+                transform: scale(0.95);
+            }
+
+            /* Expanded Sidebar Styles */
+            .sidebar.expanded {
+                width: 250px;
+            }
+
+            .sidebar.expanded .sidebar-logo {
+                padding: 20px;
+                justify-content: flex-start;
+            }
+
+            .sidebar.expanded .sidebar-logo span {
+                display: block;
+            }
+
+            .sidebar.expanded .nav-links {
+                padding: 15px;
+            }
+
+            .sidebar.expanded .nav-links span {
+                display: block;
+            }
+
+            .sidebar.expanded .nav-links a {
+                justify-content: flex-start;
+                padding: 12px 16px;
+            }
+
+            /* Overlay */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 99;
+                backdrop-filter: blur(2px);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .btn-primary {
+                padding: 12px 20px; /* Larger touch target */
+                font-size: 1rem;
+            }
+
+            .page-header {
+                position: relative;
+                padding-right: 50px; /* Make space for hamburger */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 50px;
+            }
+
+            .nav-links a {
+                padding: 10px 8px;
+            }
+
+            .main-content {
+                margin-left: 50px;
+                width: calc(100% - 50px);
+                padding: 12px;
+            }
+
+            .teams-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .page-header h1 {
+                font-size: 1.4rem;
+            }
+
+            .btn-primary {
+                width: 100%; /* Full width on very small screens */
+                justify-content: center;
+                margin-top: 10px;
+            }
+        }
+
+        /* Teams Grid Layout */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .team-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .team-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .team-header h3 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+        }
+
+        .team-description {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .team-stats {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .join-team-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .join-team-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .join-team-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        /* Header Section */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        /* Team card styles */
+        .team-card {
+            background: var(--card-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e9edef;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .team-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .team-card h3 {
+            color: var(--text-primary);
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .team-card h3 i {
+            color: var(--primary-color);
+        }
+
+        .team-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0 0 15px 0;
+            flex-grow: 1;
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9edef;
+        }
+
+        .team-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .chat-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .chat-btn:hover {
+            background: #0d6b5f;
+        }
+
+        .loading-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading-state i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            background: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        /* Updated button styles */
+        .create-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .create-btn:hover {
+            background-color: #1fa855;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--text-primary);
+            background: var(--background-color);
+        }
+
+        #createTeamForm {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+            background: white;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--background-color);
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--primary-color);
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: var(--success-color);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Team Card Enhancements */
+        .team-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .member-count {
+            background: var(--primary-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        /* Chat Modal Styles */
+        .chat-modal {
+            height: 90vh;
+            max-width: 800px;
+            background: #f0f2f5;
+        }
+
+        .chat-header {
+            background: #008069;
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .chat-header-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .chat-messages {
+            background: #e4e1de;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .message {
+            max-width: 65%;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 7.5px;
+            position: relative;
+        }
+
+        .message.sent {
+            background: #d9fdd3;
+            margin-left: auto;
+        }
+
+        .message.received {
+            background: white;
+        }
+
+        .message-time {
+            font-size: 0.7em;
+            color: #667781;
+            margin-top: 2px;
+            text-align: right;
+        }
+
+        .chat-input {
+            background: #f0f2f5;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background: white;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            color: #54656f;
+            border-radius: 50%;
+        }
+
+        .icon-btn:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        #messageInput {
+            flex: 1;
+            border: none;
+            padding: 8px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .send-btn {
+            background: #008069;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .voice-recording-ui {
+            background: #fff;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .recording-timer {
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        .emoji-picker {
+            position: absolute;
+            bottom: 70px;
+            left: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Voice message styling */
+        .voice-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .voice-message-player {
+            background: #e9edef;
+            border-radius: 15px;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .voice-message-duration {
+            color: #667781;
+            font-size: 0.8em;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .cancel-btn,
+        .submit-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .cancel-btn {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        .create-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .create-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.success {
+            background-color: var(--secondary-color);
+        }
+
+        .notification.error {
+            background-color: #dc3545;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10px auto;
+            }
+
+            .teams-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-church"></i>
+            <span>KCA Christian Union</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="dashboard.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+            <li><a href="teams.html" class="active"><i class="fas fa-users"></i><span>Teams</span></a></li>
+            <li><a href="events.html"><i class="fas fa-calendar"></i><span>Events</span></a></li>
+            <li><a href="contributions.html"><i class="fas fa-hand-holding-heart"></i><span>Contributions</span></a></li>
+            <li><a href="members.html"><i class="fas fa-user-friends"></i><span>Members</span></a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+        </ul>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="page-header">
+                <h1>Ministry Teams</h1>
+                <button class="btn btn-primary" onclick="openCreateTeamModal()">
+                    <i class="fas fa-plus"></i> Create Team
+                </button>
+            </div>
+
+            <div class="teams-grid">
+                <!-- Teams will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Team Modal -->
+    <div id="createTeamModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-users"></i> Create New Team</h2>
+                <button type="button" class="close-modal" onclick="closeCreateTeamModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="createTeamForm" onsubmit="handleCreateTeam(event)">
+                <div class="form-group">
+                    <label for="teamName">Team Name</label>
+                    <input type="text" id="teamName" name="teamName" required 
+                           placeholder="Enter team name" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="teamDescription">Description</label>
+                    <textarea id="teamDescription" name="teamDescription" 
+                              placeholder="Describe your team's purpose" maxlength="500"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="teamAvatar">Team Avatar (Optional)</label>
+                    <div class="file-upload">
+                        <label class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Choose an image</span>
+                            <input type="file" id="teamAvatar" name="teamAvatar" 
+                                   accept="image/*" onchange="updateFileName(this)">
+                        </label>
+                        <div id="fileName" class="mt-2"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateTeamModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Team
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Team Chat Modal -->
+    <div id="teamChatModal" class="modal">
+        <div class="modal-content chat-modal">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <h2 id="chatTeamName">Team Chat</h2>
+                    <small id="chatMemberCount">0 members</small>
+                </div>
+                <div class="chat-header-actions">
+                    <button class="icon-btn" onclick="toggleEmojiPicker()">
+                        <i class="far fa-smile"></i>
+                    </button>
+                    <button class="icon-btn" onclick="closeChatModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be loaded here -->
+            </div>
+
+            <!-- Voice Recording UI -->
+            <div id="voiceRecordingUI" class="voice-recording-ui" style="display: none;">
+                <div class="recording-timer" id="recordingTimer">00:00</div>
+                <button class="icon-btn" id="stopRecordingBtn">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <button class="icon-btn" id="cancelRecordingBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Chat Input -->
+            <form id="chatForm" class="chat-input">
+                <div class="input-wrapper">
+                    <button type="button" class="icon-btn emoji-btn" onclick="toggleEmojiPicker()">
+                        <i class="far fa-smile"></i>
+                    </button>
+                    <input type="text" id="messageInput" placeholder="Type a message">
+                    <button type="button" class="icon-btn" id="startVoiceBtn">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+                <button type="submit" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+
+            <!-- Emoji Picker -->
+            <div id="emojiPicker" class="emoji-picker" style="display: none;">
+                <!-- Emojis will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Updated JavaScript for better team display and management
+    async function loadTeams() {
+        const teamsGrid = document.getElementById('teamsGrid');
+        teamsGrid.innerHTML = '<div id="loadingState" class="loading-state"><i class="fas fa-spinner fa-spin"></i><p>Loading teams...</p></div>';
+
+        try {
+            const { data: teams, error } = await supabaseClient
+                .from('teams')
+                .select(`
+                    *,
+                    team_members (
+                        user_id,
+                        role
+                    ),
+                    profiles:team_members(user_id)
+                `)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            teamsGrid.innerHTML = '';
+
+            if (teams.length === 0) {
+                teamsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>No Teams Yet</h3>
+                        <p>Create a new team to get started</p>
+                        <button onclick="openCreateTeamModal()" class="create-btn">
+                            <i class="fas fa-plus"></i> Create New Team
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            teams.forEach(team => {
+                const teamCard = createTeamCard(team);
+                teamsGrid.appendChild(teamCard);
+            });
+
+        } catch (error) {
+            console.error('Error loading teams:', error);
+            teamsGrid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <h3>Error Loading Teams</h3>
+                    <p>Please try again later</p>
+                </div>
+            `;
+        }
+    }
+
+    function createTeamCard(team) {
+        const div = document.createElement('div');
+        div.className = 'team-card';
+        div.innerHTML = `
+            <h3>
+                <i class="fas fa-users"></i>
+                ${team.name}
+            </h3>
+            <p>${team.description}</p>
+            <div class="team-info">
+                <div class="team-stat">
+                    <i class="fas fa-user-group"></i>
+                    ${team.team_members.length} members
+                </div>
+                <div class="team-stat">
+                    <i class="fas fa-clock"></i>
+                    ${formatDate(team.created_at)}
+                </div>
+            </div>
+            <button onclick="openTeamChat('${team.id}')" class="chat-btn">
+                <i class="fas fa-comments"></i> Open Team Chat
+            </button>
+        `;
+        return div;
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = now - date;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        if (days === 0) {
+            return 'Today';
+        } else if (days === 1) {
+            return 'Yesterday';
+        } else if (days < 7) {
+            return `${days} days ago`;
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+
+    // Function to create a team
+    async function handleCreateTeam(e) {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+
+        try {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+            const formData = new FormData(form);
+            const teamData = {
+                name: formData.get('teamName'),
+                description: formData.get('teamDescription'),
+            };
+
+            // Get current user
+            const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+            if (userError) throw userError;
+
+            // Handle avatar upload if provided
+            const avatarFile = formData.get('teamAvatar');
+            if (avatarFile.size > 0) {
+                const fileExt = avatarFile.name.split('.').pop();
+                const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+                
+                const { data: uploadData, error: uploadError } = await supabaseClient
+                    .storage
+                    .from('team-avatars')
+                    .upload(fileName, avatarFile);
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabaseClient
+                    .storage
+                    .from('team-avatars')
+                    .getPublicUrl(fileName);
+
+                teamData.avatar_url = publicUrl;
+            }
+
+            // Create team
+            const { data: team, error: teamError } = await supabaseClient
+                .from('teams')
+                .insert([{
+                    ...teamData,
+                    created_by: user.id
+                }])
+                .select()
+                .single();
+
+            if (teamError) throw teamError;
+
+            // Add creator as team member
+            await supabaseClient
+                .from('team_members')
+                .insert([{
+                    team_id: team.id,
+                    user_id: user.id,
+                    role: 'admin'
+                }]);
+
+            showNotification('Team created successfully!', 'success');
+            closeCreateTeamModal();
+            form.reset();
+
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification(error.message, 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    }
+
+    // Modal functions
+    function openCreateTeamModal() {
+        document.getElementById('createTeamModal').style.display = 'block';
+    }
+
+    function closeCreateTeamModal() {
+        document.getElementById('createTeamModal').style.display = 'none';
+        document.getElementById('createTeamForm').reset();
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('createTeamModal');
+        if (event.target === modal) {
+            closeCreateTeamModal();
+        }
+    }
+
+    // Team Chat Functions
+    async function openTeamChat(teamId) {
+        currentTeamId = teamId;
+        const chatModal = document.getElementById('teamChatModal');
+        chatModal.style.display = 'block';
+        loadTeamMessages(teamId);
+    }
+
+    function closeChatModal() {
+        document.getElementById('teamChatModal').style.display = 'none';
+        currentTeamId = null;
+    }
+
+    async function loadTeamMessages(teamId) {
+        try {
+            const { data: messages, error } = await supabaseClient
+                .from('team_messages')
+                .select(`
+                    *,
+                    user:user_id (
+                        id,
+                        email,
+                        full_name
+                    )
+                `)
+                .eq('team_id', teamId)
+                .order('created_at', { ascending: true });
+
+            if (error) throw error;
+
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+            messages.forEach(message => appendMessage(message));
+        } catch (error) {
+            console.error('Error loading messages:', error);
+            alert('Error loading messages');
+        }
+    }
+
+    async function sendMessage(content, type = 'text', voiceUrl = null) {
+        try {
+            const { error } = await supabaseClient
+                .from('team_messages')
+                .insert([{
+                    team_id: currentTeamId,
+                    user_id: currentUser.id,
+                    content: content,
+                    voice_url: voiceUrl,
+                    type: type
+                }]);
+
+            if (error) throw error;
+
+            // Clear input after sending
+            if (type === 'text') {
+                document.getElementById('messageInput').value = '';
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            alert('Error sending message');
+        }
+    }
+
+    function appendMessage(message) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.user_id === currentUser.id ? 'sent' : 'received'}`;
+
+        if (message.type === 'voice') {
+            // Handle voice message
+            messageDiv.innerHTML = `
+                <div class="voice-message">
+                    <button onclick="playVoiceMessage('${message.voice_url}')" class="icon-btn">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <audio src="${message.voice_url}" style="display: none;"></audio>
+                    <div class="voice-message-player">
+                        <div class="voice-message-duration">Voice message</div>
+                    </div>
+                </div>
+                <div class="message-time">${new Date(message.created_at).toLocaleTimeString()}</div>
+            `;
+        } else {
+            // Handle text message
+            messageDiv.innerHTML = `
+                <div class="message-content">${message.content}</div>
+                <div class="message-time">${new Date(message.created_at).toLocaleTimeString()}</div>
+            `;
+        }
+
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Handle Chat Form Submission
+    document.getElementById('chatForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        if (message) {
+            await sendMessage(message);
+        }
+    });
+
+    // Voice Recording
+    let mediaRecorder;
+    let audioChunks = [];
+    let recordingTimer;
+    let recordingDuration = 0;
+
+    async function startVoiceRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                await sendVoiceMessage(audioBlob);
+            };
+
+            mediaRecorder.start();
+            showRecordingUI();
+            startRecordingTimer();
+        } catch (error) {
+            console.error('Error starting voice recording:', error);
+            alert('Could not access microphone');
+        }
+    }
+
+    function showRecordingUI() {
+        document.getElementById('voiceRecordingUI').style.display = 'flex';
+        document.getElementById('chatForm').style.display = 'none';
+    }
+
+    function hideRecordingUI() {
+        document.getElementById('voiceRecordingUI').style.display = 'none';
+        document.getElementById('chatForm').style.display = 'flex';
+        stopRecordingTimer();
+    }
+
+    function startRecordingTimer() {
+        recordingDuration = 0;
+        recordingTimer = setInterval(() => {
+            recordingDuration++;
+            const minutes = Math.floor(recordingDuration / 60);
+            const seconds = recordingDuration % 60;
+            document.getElementById('recordingTimer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    function stopRecordingTimer() {
+        clearInterval(recordingTimer);
+        recordingDuration = 0;
+    }
+
+    async function sendVoiceMessage(audioBlob) {
+        try {
+            // Upload audio to Supabase storage
+            const filename = `voice-${Date.now()}.mp3`;
+            const { data, error } = await supabaseClient
+                .storage
+                .from('voice-messages')
+                .upload(filename, audioBlob);
+
+            if (error) throw error;
+
+            // Send message with voice URL
+            await sendMessage(null, null, data.path);
+        } catch (error) {
+            console.error('Error sending voice message:', error);
+            alert('Error sending voice message');
+        }
+    }
+
+    // Emoji Picker
+    function toggleEmojiPicker() {
+        const picker = document.getElementById('emojiPicker');
+        picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Initialize emoji picker
+    new EmojiMart.Picker({
+        onEmojiSelect: (emoji) => {
+            const input = document.getElementById('messageInput');
+            input.value += emoji.native;
+        }
+    });
+
+    // Event Listeners
+    document.getElementById('startVoiceBtn').addEventListener('mousedown', startVoiceRecording);
+    document.getElementById('stopRecordingBtn').addEventListener('click', () => {
+        mediaRecorder.stop();
+        hideRecordingUI();
+    });
+    document.getElementById('cancelRecordingBtn').addEventListener('click', () => {
+        mediaRecorder.stop();
+        hideRecordingUI();
+        audioChunks = [];
+    });
+
+    // Mobile menu functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        let isMenuOpen = false;
+
+        // Toggle menu function
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            sidebar.classList.toggle('expanded');
+            sidebarOverlay.classList.toggle('active');
+            
+            // Update aria-expanded attribute
+            mobileMenuBtn.setAttribute('aria-expanded', isMenuOpen);
+            
+            // Update icon
+            const icon = mobileMenuBtn.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        }
+
+        // Handle menu button click
+        mobileMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        // Close menu when clicking overlay
+        sidebarOverlay.addEventListener('click', function() {
+            if (isMenuOpen) {
+                toggleMenu();
+            }
+        });
+
+        // Close menu when clicking a link
+        const navLinks = document.querySelectorAll('.nav-links a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (isMenuOpen) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        // Handle escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isMenuOpen) {
+                toggleMenu();
+            }
+        });
+
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (window.innerWidth > 768 && isMenuOpen) {
+                    toggleMenu();
+                }
+            }, 250);
+        });
+    });
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                              type === 'error' ? 'fa-exclamation-circle' : 
+                              'fa-info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 300);
+        }, 4000);
+    }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - KCA Christian Union</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Navigation Styles */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px 0;
+            transition: background 0.3s;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            background: #007bff;
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2.5em;
+            color: #007bff;
+            margin-right: 20px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .stat-info {
+            flex-grow: 1;
+        }
+
+        .stat-info h3 {
+            margin: 0;
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .stat-info .number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 5px;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .card h2 i {
+            margin-right: 10px;
+            color: #007bff;
+        }
+
+        /* Activity Items */
+        .activity-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #007bff;
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        /* Modal and Form Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            padding: 10px;
+            overflow-y: auto; /* Enable scrolling on the backdrop */
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 12px;
+            position: relative;
+            max-height: 90vh; /* Maximum height relative to viewport */
+            overflow-y: auto; /* Enable scrolling within modal */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        .modal-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: #666;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .close-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+            min-height: 80px;
+            max-height: 200px;
+        }
+
+        /* Poster Upload Styles */
+        .poster-upload {
+            position: relative;
+            width: 100%;
+            height: 140px;
+            margin-top: 8px;
+        }
+
+        .poster-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            background-size: cover;
+            background-position: center;
+            transition: border-color 0.3s;
+        }
+
+        .poster-preview:hover {
+            border-color: var(--primary-color);
+        }
+
+        .poster-preview i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding-top: 15px;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .cancel-btn,
+        .submit-btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .submit-btn:hover {
+            background-color: #0d6b5f;
+        }
+
+        .cancel-btn {
+            background-color: #f0f2f5;
+            border: none;
+            color: var(--text-primary);
+        }
+
+        .cancel-btn:hover {
+            background-color: #e4e6e9;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .modal {
+                padding: 0;
+            }
+
+            .modal-content {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .modal-header {
+                padding: 15px 0;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                font-size: 16px; /* Prevent zoom on iOS */
+                padding: 10px;
+            }
+
+            .form-actions {
+                padding: 15px 0;
+                flex-direction: column-reverse;
+                gap: 8px;
+            }
+
+            .submit-btn,
+            .cancel-btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Add smooth scrolling for the entire page */
+        * {
+            scroll-behavior: smooth;
+        }
+
+        /* Add some padding at the bottom to ensure content is not hidden behind form actions */
+        #addEventForm {
+            padding-bottom: 20px;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar with working navigation -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="./images/KCAU-LOGO.jpg" alt="KCA CU Logo">
+            </div>
+            <nav>
+                <a href="dashboard.html" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="teams.html" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    Teams
+                </a>
+                <a href="events.html" class="nav-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    Events
+                </a>
+                <a href="contributions.html" class="nav-item">
+                    <i class="fas fa-hand-holding-dollar"></i>
+                    Contributions
+                </a>
+                <a href="members.html" class="nav-item">
+                    <i class="fas fa-user-group"></i>
+                    Members
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i class="fas fa-gear"></i>
+                    Settings
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>KCA Christian Union Overview</h1>
+                <button class="btn btn-primary" onclick="openEventModal()">Add New Event</button>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="stats-grid fade-in">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Members</h3>
+                        <div id="memberCount" class="number">Loading...</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-people-group"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Ministry Teams</h3>
+                        <div id="teamCount" class="number">Loading...</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Contributions</h3>
+                        <div id="contributionTotal" class="number">Loading...</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Upcoming Events</h3>
+                        <div id="eventCount" class="number">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <!-- Recent Events -->
+                <div class="card fade-in">
+                    <h2><i class="fas fa-calendar-alt"></i> Upcoming Events</h2>
+                    <div id="eventsList">Loading events...</div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="card fade-in">
+                    <h2><i class="fas fa-clock-rotate-left"></i> Recent Contributions</h2>
+                    <div id="activitiesList">Loading activities...</div>
+                </div>
+            </div>
+
+            <!-- Team Performance -->
+            <div class="card fade-in">
+                <h2>Team Performance</h2>
+                <div id="teamPerformance">
+                    <!-- Team performance will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div id="addEventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-calendar-plus"></i> Add New Event</h2>
+                <button onclick="closeAddEventModal()" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addEventForm" onsubmit="handleAddEvent(event)">
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" required placeholder="Enter event title">
+                </div>
+                <div class="form-group">
+                    <label for="eventDate">Event Date</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventTime">Event Time</label>
+                    <input type="time" id="eventTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Event Description</label>
+                    <textarea id="eventDescription" required placeholder="Enter event description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="eventPoster">Event Poster (Optional)</label>
+                    <div class="poster-upload">
+                        <input type="file" id="eventPoster" accept="image/*" onchange="previewPoster(event)">
+                        <div class="poster-preview" id="posterPreview">
+                            <i class="fas fa-image"></i>
+                            <span>Click to upload poster</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeAddEventModal()" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Load Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        const supabaseClient = supabase.createClient(
+            'https://qmmwikoyptgkheztrwjn.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbXdpa295cHRna2hlenRyd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzODAyMTgsImV4cCI6MjA1Njk1NjIxOH0.-InUlGihCe9Z-pTSFdPr98UX6lTVIuQ2mVMrLDb9lY4'
+        );
+
+        // Check if Supabase is initialized
+        if (!supabaseClient) {
+            console.error('Supabase client not initialized!');
+        } else {
+            console.log('Supabase client initialized successfully');
+        }
+
+        // Load Statistics
+        async function loadStatistics() {
+            try {
+                // Get member count
+                const { count: memberCount } = await supabaseClient
+                    .from('users')
+                    .select('*', { count: 'exact' });
+                document.getElementById('memberCount').textContent = memberCount || 0;
+
+                // Get team count
+                const { count: teamCount } = await supabaseClient
+                    .from('teams')
+                    .select('*', { count: 'exact' });
+                document.getElementById('teamCount').textContent = teamCount || 0;
+
+                // Get total contributions
+                const { data: contributions } = await supabaseClient
+                    .from('contributions')
+                    .select('amount');
+                const total = contributions?.reduce((sum, c) => sum + Number(c.amount), 0) || 0;
+                document.getElementById('contributionTotal').textContent = `KES ${total.toLocaleString()}`;
+
+                // Get upcoming events count
+                const { count: eventCount } = await supabaseClient
+                    .from('events')
+                    .select('*', { count: 'exact' })
+                    .gte('event_date', new Date().toISOString());
+                document.getElementById('eventCount').textContent = eventCount || 0;
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // Load Events
+        async function loadEvents() {
+            try {
+                const { data: events, error } = await supabaseClient
+                    .from('events')
+                    .select('*')
+                    .gte('event_date', new Date().toISOString())
+                    .order('event_date', { ascending: true })
+                    .limit(5);
+
+                if (error) throw error;
+
+                const eventsList = document.getElementById('eventsList');
+                if (events.length === 0) {
+                    eventsList.innerHTML = '<p>No upcoming events</p>';
+                    return;
+                }
+
+                eventsList.innerHTML = events.map(event => `
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div>
+                            <h4>${event.title}</h4>
+                            <p>${event.description}</p>
+                            <small>${new Date(event.event_date).toLocaleString()}</small>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+
+        // Load Recent Activities
+        async function loadActivities() {
+            try {
+                const { data: contributions, error } = await supabaseClient
+                    .from('contributions')
+                    .select(`
+                        *,
+                        users (full_name)
+                    `)
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+
+                if (error) throw error;
+
+                const activitiesList = document.getElementById('activitiesList');
+                if (contributions.length === 0) {
+                    activitiesList.innerHTML = '<p>No recent activities</p>';
+                    return;
+                }
+
+                activitiesList.innerHTML = contributions.map(contribution => `
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div>
+                            <p><strong>${contribution.users?.full_name || 'Anonymous'}</strong></p>
+                            <p>Contributed: KES ${Number(contribution.amount).toLocaleString()}</p>
+                            <small>${new Date(contribution.created_at).toLocaleDateString()}</small>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading activities:', error);
+            }
+        }
+
+        // Load Team Performance
+        async function loadTeamPerformance() {
+            try {
+                const { data: teams, error } = await supabaseClient
+                    .from('teams')
+                    .select(`
+                        *,
+                        team_members (count)
+                    `);
+
+                if (error) throw error;
+
+                const teamPerformance = document.getElementById('teamPerformance');
+                teamPerformance.innerHTML = teams.map(team => `
+                    <div class="progress-container">
+                        <div class="d-flex justify-content-between">
+                            <h4>${team.name}</h4>
+                            <span>${team.team_members.count} members</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${(team.team_members.count / 50) * 100}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading team performance:', error);
+            }
+        }
+
+        // Modal Functions
+        function openEventModal() {
+            document.getElementById('addEventModal').style.display = 'block';
+        }
+
+        function closeAddEventModal() {
+            document.getElementById('addEventModal').style.display = 'none';
+            document.getElementById('addEventForm').reset();
+        }
+
+        // Function to handle event creation
+        async function handleAddEvent(e) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+            try {
+                // Get form values
+                const title = document.getElementById('eventTitle').value;
+                const date = document.getElementById('eventDate').value;
+                const time = document.getElementById('eventTime').value;
+                const description = document.getElementById('eventDescription').value;
+                const posterFile = document.getElementById('eventPoster').files[0];
+
+                console.log('Form values:', { title, date, time, description }); // Debug log
+
+                // Get current user
+                const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+                if (userError) {
+                    console.error('User error:', userError);
+                    throw new Error('Please login to create events');
+                }
+
+                console.log('Current user:', user); // Debug log
+
+                let posterUrl = '';
+                if (posterFile) {
+                    try {
+                        const fileExt = posterFile.name.split('.').pop();
+                        const fileName = `${Math.random()}.${fileExt}`;
+                        const filePath = `${fileName}`;
+
+                        console.log('Uploading poster...'); // Debug log
+
+                        const { data: uploadData, error: uploadError } = await supabaseClient
+                            .storage
+                            .from('event-posters')
+                            .upload(filePath, posterFile);
+
+                        if (uploadError) {
+                            console.error('Poster upload error:', uploadError);
+                            throw new Error('Failed to upload poster');
+                        }
+
+                        const { data: { publicUrl } } = supabaseClient
+                            .storage
+                            .from('event-posters')
+                            .getPublicUrl(filePath);
+
+                        posterUrl = publicUrl;
+                        console.log('Poster uploaded:', posterUrl); // Debug log
+                    } catch (uploadError) {
+                        console.error('Poster upload error:', uploadError);
+                        // Continue without poster if upload fails
+                    }
+                }
+
+                console.log('Creating event in database...'); // Debug log
+
+                // Create the event
+                const { data: event, error: eventError } = await supabaseClient
+                    .from('events')
+                    .insert([
+                        {
+                            title: title,
+                            date: date,
+                            time: time,
+                            description: description,
+                            poster_url: posterUrl,
+                            created_by: user.id
+                        }
+                    ])
+                    .select()
+                    .single();
+
+                if (eventError) {
+                    console.error('Event creation error:', eventError);
+                    throw new Error('Failed to create event: ' + eventError.message);
+                }
+
+                console.log('Event created:', event); // Debug log
+
+                // Add event to calendar
+                calendar.addEvent({
+                    id: event.id,
+                    title: event.title,
+                    start: `${event.date}T${event.time}`,
+                    description: event.description,
+                    poster: event.poster_url
+                });
+
+                // Show success message
+                showNotification('Event created successfully!', 'success');
+
+                // Close modal and reset form
+                closeAddEventModal();
+                
+                // Refresh calendar
+                calendar.refetchEvents();
+
+            } catch (error) {
+                console.error('Error in event creation:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Create Event';
+            }
+        }
+
+        // Enhanced notification function
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            // Style the notification
+            Object.assign(notification.style, {
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                padding: '15px 25px',
+                borderRadius: '8px',
+                backgroundColor: type === 'success' ? '#25D366' : '#dc3545',
+                color: 'white',
+                zIndex: '1000',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                animation: 'slideIn 0.3s ease'
+            });
+
+            document.body.appendChild(notification);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Make sure calendar is initialized
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize calendar
+            const calendarEl = document.getElementById('calendar');
+            if (calendarEl) {
+                calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,dayGridWeek'
+                    },
+                    events: loadEvents,
+                    eventClick: function(info) {
+                        showEventDetails(info.event);
+                    }
+                });
+         
+                calendar.render();
+            }
+
+            // Add form submit handler
+            
+            const form = document.getElementById('addEventForm');
+            if (form) {
+                form.addEventListener('submit', handleAddEvent);
+            }
+        });
+
+        // Set up real-time subscriptions
+        supabaseClient
+            .channel('public:contributions')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'contributions' }, () => {
+                loadStatistics();
+                loadActivities();
+            })
+            .subscribe();
+
+        supabaseClient
+            .channel('public:events')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
+                loadStatistics();
+                loadEvents();
+            })
+            .subscribe();
+
+        supabaseClient
+            .channel('public:teams')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'teams' }, () => {
+                loadStatistics();
+                loadTeamPerformance();
+            })
+            .subscribe();
+
+        // Initial load
+        loadStatistics();
+        loadEvents();
+        loadActivities();
+        loadTeamPerformance();
+    </script>
+</body>
+</html> 

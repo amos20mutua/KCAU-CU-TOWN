@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contributions - KCA Christian Union</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --accent-color: #43b02a;
+            --background-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            box-shadow: var(--card-shadow);
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 10px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover, 
+        .nav-links a.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-links i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: clamp(1.5rem, 4vw, 1.8rem);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            color: var(--text-secondary);
+        }
+
+        /* Progress Bar Section */
+        .contribution-progress {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: clamp(15px, 4vw, 25px);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+            border-top: 3px solid var(--accent-color);
+        }
+
+        .progress-header {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .progress-info h3 {
+            font-size: clamp(1.1rem, 3.5vw, 1.2rem);
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.8s ease;
+        }
+
+        /* Contribution Methods */
+        .contribution-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .contribution-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: clamp(15px, 4vw, 25px);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .contribution-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .contribution-card h3 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contribution-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* M-Pesa Button */
+        .btn-mpesa {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-mpesa:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-mpesa:active {
+            transform: translateY(1px);
+        }
+
+        /* Recent Contributions */
+        .recent-contributions {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: clamp(15px, 4vw, 25px);
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .contributions-table {
+            min-width: 100%;
+            border-collapse: collapse;
+        }
+
+        .contributions-table th,
+        .contributions-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .contributions-table th {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .contributions-table td {
+            color: var(--text-primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            width: 95%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 12px;
+            background: var(--card-bg);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: 15px 10px;
+            }
+
+            .sidebar-logo span,
+            .nav-links span {
+                display: none;
+            }
+
+            .nav-links a {
+                padding: 12px;
+                justify-content: center;
+            }
+
+            .nav-links i {
+                margin: 0;
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                margin-left: 60px;
+                width: calc(100% - 60px);
+                padding: 15px;
+            }
+        }
+
+        /* Additional mobile optimizations */
+        @media (max-width: 480px) {
+            .contribution-methods {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .contributions-table {
+                font-size: 0.9rem;
+            }
+
+            .contributions-table th,
+            .contributions-table td {
+                padding: 10px 8px;
+            }
+
+            /* Optimize table for small screens */
+            .table-container {
+                margin: 0 -15px;
+                padding: 0 15px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Make buttons more touch-friendly */
+            .btn-mpesa {
+                padding: 14px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #1a1a1a;
+                --card-bg: #2d2d2d;
+                --text-primary: #ffffff;
+                --text-secondary: #a0aec0;
+                --border-color: #404040;
+            }
+
+            .contribution-card {
+                border-color: #404040;
+            }
+
+            .form-group input {
+                background: #333;
+                color: white;
+                border-color: #404040;
+            }
+        }
+
+        /* Enhanced Calendar Styles */
+        .calendar-container {
+            background: linear-gradient(145deg, var(--card-bg), var(--background-color));
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.1),
+                inset 0 -2px 6px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .calendar-header h2 {
+            color: var(--text-primary);
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: linear-gradient(45deg, var(--primary-color), #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .calendar-nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            padding: 8px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--primary-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .calendar-nav-btn:hover::before {
+            width: 40px;
+            height: 40px;
+            opacity: 0.2;
+        }
+
+        .calendar-grid {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(5px);
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .calendar-dates {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+        }
+
+        .calendar-date {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .calendar-date:hover {
+            transform: translateY(-4px);
+            background: rgba(var(--primary-color-rgb), 0.1);
+            box-shadow: 
+                0 10px 20px rgba(0, 0, 0, 0.1),
+                0 6px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .calendar-date::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .calendar-date:hover::before {
+            opacity: 1;
+        }
+
+        .date-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .calendar-date.has-event {
+            background: rgba(var(--primary-color-rgb), 0.1);
+        }
+
+        .calendar-date.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+
+        .calendar-date.today {
+            background: linear-gradient(145deg, var(--primary-color), rgba(var(--primary-color-rgb), 0.8));
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(var(--primary-color-rgb), 0.3);
+        }
+
+        .calendar-date.today .date-number {
+            color: white;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translateX(-50%) scale(1.5);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Event Preview Animation */
+        .event-preview {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Event Card Hover Effect */
+        .event-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .event-card:hover::before {
+            left: 100%;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .calendar-container {
+                padding: 20px;
+            }
+
+            .calendar-date {
+                border-radius: 12px;
+                padding: 8px;
+            }
+
+            .date-number {
+                font-size: 1rem;
+            }
+        }
+
+        /* Dark mode enhancements */
+        @media (prefers-color-scheme: dark) {
+            .calendar-container {
+                background: linear-gradient(145deg, rgba(30, 30, 30, 0.9), rgba(20, 20, 20, 0.9));
+            }
+
+            .calendar-date {
+                background: rgba(255, 255, 255, 0.03);
+            }
+
+            .calendar-date:hover {
+                background: rgba(var(--primary-color-rgb), 0.15);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-church"></i>
+            <span>KCA Christian Union</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="dashboard.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+            <li><a href="teams.html"><i class="fas fa-users"></i><span>Teams</span></a></li>
+            <li><a href="events.html"><i class="fas fa-calendar"></i><span>Events</span></a></li>
+            <li><a href="contributions.html" class="active"><i class="fas fa-hand-holding-heart"></i><span>Contributions</span></a></li>
+            <li><a href="members.html"><i class="fas fa-user-friends"></i><span>Members</span></a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Support Our Ministry</h1>
+            <p>Your generous contributions help us spread God's word and support our community</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="contribution-progress">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <h3>Ministry Support Progress</h3>
+                    <p>Current: <span id="progressAmount">KES 0</span></p>
+                </div>
+                <div id="progressPercentage">0%</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- Contribution Methods -->
+        <div class="contribution-methods">
+            <div class="contribution-card">
+                <h3><i class="fas fa-mobile-alt"></i> M-Pesa</h3>
+                <p>Support us instantly through M-Pesa. Click the button below to contribute.</p>
+                <button class="btn-mpesa" onclick="openMpesaModal()">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Contribute via M-Pesa
+                </button>
+            </div>
+
+            <div class="contribution-card">
+                <h3><i class="fas fa-university"></i> Bank Transfer</h3>
+                <p>Bank: KCB Bank<br>
+                   Account Name: KCA Christian Union<br>
+                   Account Number: 1234567890</p>
+            </div>
+        </div>
+
+        <!-- Recent Contributions -->
+        <div class="recent-contributions">
+            <h3><i class="fas fa-history"></i> Recent Contributions</h3>
+            <div class="table-container">
+                <table class="contributions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contributionsTableBody">
+                        <!-- Recent contributions will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- M-Pesa Modal -->
+    <div id="mpesaModal" class="modal">
+        <div class="modal-content">
+            <h2>M-Pesa Contribution</h2>
+            <form id="mpesaForm" onsubmit="handleMpesaContribution(event)">
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="phoneNumber" required placeholder="e.g., 0712345678">
+                </div>
+                <div class="form-group">
+                    <label>Amount (KES)</label>
+                    <input type="number" id="amount" required min="10" placeholder="Enter amount">
+                </div>
+                <button type="submit" class="btn-mpesa">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Contribution
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // M-Pesa Integration Functions
+        function openMpesaModal() {
+            document.getElementById('mpesaModal').style.display = 'block';
+        }
+
+        function closeMpesaModal() {
+            document.getElementById('mpesaModal').style.display = 'none';
+        }
+
+        async function handleMpesaContribution(e) {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+                const phoneNumber = document.getElementById('phoneNumber').value;
+                const amount = document.getElementById('amount').value;
+
+                // Format phone number (remove leading 0 and add 254)
+                const formattedPhone = phoneNumber.startsWith('0') ? 
+                    `254${phoneNumber.substring(1)}` : phoneNumber;
+
+                // Send request to initiate STK push
+                const response = await fetch('mpesa-handler.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phoneNumber: formattedPhone,
+                        amount: amount
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.ResponseCode === "0") {
+                    // Save the checkout request ID for status checking
+                    const checkoutRequestId = result.CheckoutRequestID;
+                    
+                    showNotification("Please enter your M-Pesa PIN to complete the payment", "info");
+                    
+                    // Start checking transaction status
+                    startCheckoutStatusCheck(checkoutRequestId);
+                } else {
+                    throw new Error(result.ResponseDescription || 'Failed to initiate payment');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        }
+
+        async function startCheckoutStatusCheck(checkoutRequestId) {
+            const maxAttempts = 10;
+            let attempts = 0;
+
+            const checkStatus = async () => {
+                try {
+                    const response = await fetch('check-payment-status.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ checkoutRequestId })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.ResultCode === "0") {
+                        // Payment successful
+                        showNotification("Payment completed successfully!", "success");
+                        closeMpesaModal();
+                        updateContributionsList();
+                        document.getElementById('mpesaForm').reset();
+                    } else if (result.ResultCode === "1032") {
+                        // Cancelled by user
+                        showNotification("Payment cancelled by user", "error");
+                    } else if (attempts < maxAttempts) {
+                        // Check again after 5 seconds
+                        attempts++;
+                        setTimeout(checkStatus, 5000);
+                    } else {
+                        showNotification("Payment verification timed out. If you completed the payment, it will be reflected shortly.", "warning");
+                    }
+                } catch (error) {
+                    console.error('Error checking status:', error);
+                }
+            };
+
+            checkStatus();
+        }
+
+        // Utility function to show notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('mpesaModal');
+            if (event.target === modal) {
+                closeMpesaModal();
+            }
+        }
+    </script>
+</body>
+</html> 

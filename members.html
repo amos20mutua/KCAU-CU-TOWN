@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members - KCA Christian Union</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/members.css">
+</head>
+<body>
+    <!-- Sidebar navigation will be included here -->
+    <div class="main-content">
+        <div class="members-container">
+            <div class="members-header">
+                <h1>Our Members</h1>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="memberSearch" placeholder="Search members...">
+                </div>
+            </div>
+
+            <div class="members-grid" id="membersGrid">
+                <!-- Members will be dynamically loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const membersList = document.querySelector('.members-list'); // Adjust selector as needed
+
+        // Function to create member card
+        function createMemberCard(member) {
+            return `
+                <div class="member-card" data-id="${member.user_id}">
+                    <div class="member-avatar">
+                        ${member.full_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="member-info">
+                        <h3>${member.full_name}</h3>
+                        <p>${member.course}</p>
+                        <p>${member.email}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to load all members
+        async function loadMembers() {
+            try {
+                const { data: members, error } = await supabaseClient
+                    .from('members')
+                    .select('*')
+                    .order('joined_date', { ascending: false });
+
+                if (error) throw error;
+
+                membersList.innerHTML = members.map(member => createMemberCard(member)).join('');
+            } catch (error) {
+                console.error('Error loading members:', error);
+            }
+        }
+
+        // Initial load
+        await loadMembers();
+
+        // Subscribe to real-time updates
+        const subscription = supabaseClient
+            .channel('members_channel')
+            .on('postgres_changes', 
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'members'
+                }, 
+                async (payload) => {
+                    // Reload members when there's any change
+                    await loadMembers();
+                }
+            )
+            .subscribe();
+    });
+    </script>
+</body>
+</html>
